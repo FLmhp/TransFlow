@@ -1,14 +1,14 @@
 /**
  * PDF viewer translation (PDF.js text layer).
  */
-import $ from 'jquery';
-import { requestTranslation } from './messaging.js';
+import $ from "jquery";
+import { requestTranslation } from "./messaging.js";
 
-const ATTR_TRANSLATED = 'data-transflow-pdf-translated';
-const CLASS_PDF_TRANSLATION = 'transflow-pdf-translation';
+const ATTR_TRANSLATED = "data-transflow-pdf-translated";
+const CLASS_PDF_TRANSLATION = "transflow-pdf-translation";
 
 export function isPdfPage(): boolean {
-  return document.contentType === 'application/pdf' || $('.pdfViewer, #viewer').length > 0;
+  return document.contentType === "application/pdf" || $(".pdfViewer, #viewer").length > 0;
 }
 
 export interface PdfModule {
@@ -23,16 +23,20 @@ export function createPdfModule(): PdfModule {
   async function translateLayer(layer: HTMLElement): Promise<void> {
     if (!active) return;
     const $spans = $(layer)
-      .find('span')
+      .find("span")
       .filter(function () {
-        return this.textContent !== null && this.textContent.trim().length > 0 && !this.hasAttribute(ATTR_TRANSLATED);
+        return (
+          this.textContent !== null &&
+          this.textContent.trim().length > 0 &&
+          !this.hasAttribute(ATTR_TRANSLATED)
+        );
       });
     if ($spans.length === 0) return;
 
     // Group by vertical position to reconstruct lines
     const lines = new Map<number, HTMLSpanElement[]>();
     $spans.each(function () {
-      const top = Math.round(parseFloat(this.style.top || '0') / 5) * 5;
+      const top = Math.round(parseFloat(this.style.top || "0") / 5) * 5;
       const arr = lines.get(top) ?? [];
       arr.push(this as HTMLSpanElement);
       lines.set(top, arr);
@@ -41,14 +45,17 @@ export function createPdfModule(): PdfModule {
     const sorted = [...lines.entries()].sort((a, b) => a[0] - b[0]);
     for (const [, spans] of sorted) {
       if (!active) break;
-      const text = spans.map((s) => s.textContent ?? '').join(' ').trim();
+      const text = spans
+        .map((s) => s.textContent ?? "")
+        .join(" ")
+        .trim();
       if (text.length < 3) continue;
-      spans.forEach((s) => s.setAttribute(ATTR_TRANSLATED, '1'));
+      spans.forEach((s) => s.setAttribute(ATTR_TRANSLATED, "1"));
 
       const translated = await requestTranslation(text);
       if (!translated || !active) continue;
 
-      const $el = $('<span/>', { class: CLASS_PDF_TRANSLATION }).text(translated);
+      const $el = $("<span/>", { class: CLASS_PDF_TRANSLATION }).text(translated);
       $(spans[spans.length - 1] as HTMLElement).after($el);
     }
   }
@@ -60,9 +67,9 @@ export function createPdfModule(): PdfModule {
         for (const node of Array.from(mutation.addedNodes)) {
           if (node.nodeType !== Node.ELEMENT_NODE) continue;
           const el = node as HTMLElement;
-          const layers = el.classList?.contains('textLayer')
+          const layers = el.classList?.contains("textLayer")
             ? [el]
-            : Array.from(el.querySelectorAll?.('.textLayer') ?? []);
+            : Array.from(el.querySelectorAll?.(".textLayer") ?? []);
           layers.forEach((layer) => void translateLayer(layer as HTMLElement));
         }
       }
@@ -74,7 +81,7 @@ export function createPdfModule(): PdfModule {
     async start() {
       if (active) return;
       active = true;
-      const layers = $('.textLayer').toArray() as HTMLElement[];
+      const layers = $(".textLayer").toArray() as HTMLElement[];
       for (const layer of layers) {
         await translateLayer(layer);
       }

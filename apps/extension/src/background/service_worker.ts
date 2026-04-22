@@ -13,8 +13,8 @@ import {
   type Message,
   type Settings,
   type TranslateResponse,
-} from '@transflow/core';
-import { translate } from '@transflow/translators';
+} from "@transflow/core";
+import { translate } from "@transflow/translators";
 
 // ─── Install / startup ────────────────────────────────────────────────────────
 
@@ -31,21 +31,21 @@ chrome.runtime.onStartup.addListener(installContextMenus);
 function installContextMenus(): void {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
-      id: 'translateSelection',
-      title: 'Translate selection with TransFlow',
-      contexts: ['selection'],
+      id: "translateSelection",
+      title: "Translate selection with TransFlow",
+      contexts: ["selection"],
     });
     chrome.contextMenus.create({
-      id: 'toggleTranslation',
-      title: 'Toggle page translation',
-      contexts: ['page'],
+      id: "toggleTranslation",
+      title: "Toggle page translation",
+      contexts: ["page"],
     });
   });
 }
 
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (!tab?.id) return;
-  if (info.menuItemId === 'translateSelection' && info.selectionText) {
+  if (info.menuItemId === "translateSelection" && info.selectionText) {
     const settings = mergeSettings(await chrome.storage.sync.get(null));
     try {
       const translated = await translate({
@@ -54,15 +54,15 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         targetLang: settings.targetLang,
         settings,
       });
-      await chrome.tabs.sendMessage(tab.id, { type: 'SHOW_TOOLTIP', text: translated });
+      await chrome.tabs.sendMessage(tab.id, { type: "SHOW_TOOLTIP", text: translated });
     } catch (err) {
       await chrome.tabs.sendMessage(tab.id, {
-        type: 'SHOW_ERROR',
+        type: "SHOW_ERROR",
         text: err instanceof Error ? err.message : String(err),
       });
     }
-  } else if (info.menuItemId === 'toggleTranslation') {
-    await chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_TRANSLATION' });
+  } else if (info.menuItemId === "toggleTranslation") {
+    await chrome.tabs.sendMessage(tab.id, { type: "TOGGLE_TRANSLATION" });
   }
 });
 
@@ -72,15 +72,15 @@ type SendResponse = (response: unknown) => void;
 
 chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse: SendResponse) => {
   switch (message.type) {
-    case 'TRANSLATE':
+    case "TRANSLATE":
       void handleTranslate(message, sendResponse);
       return true; // async
 
-    case 'GET_SETTINGS':
+    case "GET_SETTINGS":
       void chrome.storage.sync.get(null).then((data) => sendResponse(mergeSettings(data)));
       return true;
 
-    case 'SAVE_SETTINGS':
+    case "SAVE_SETTINGS":
       void chrome.storage.sync.set(message.settings).then(() => sendResponse({ ok: true }));
       return true;
 
@@ -90,7 +90,7 @@ chrome.runtime.onMessage.addListener((message: Message, _sender, sendResponse: S
 });
 
 async function handleTranslate(
-  message: Extract<Message, { type: 'TRANSLATE' }>,
+  message: Extract<Message, { type: "TRANSLATE" }>,
   sendResponse: SendResponse,
 ): Promise<void> {
   try {

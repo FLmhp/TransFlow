@@ -4,11 +4,6 @@
   "private": true,
   "description": "TransFlow — immersive bilingual translation Chrome extension (monorepo).",
   "license": "MIT",
-  "packageManager": "pnpm@9.15.9",
-  "engines": {
-    "node": ">=20",
-    "pnpm": ">=9"
-  },
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
@@ -23,5 +18,10 @@
     "oxlint": "^1.61.0",
     "turbo": "^2.9.6",
     "typescript": "^5.9.0"
-  }
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  },
+  "packageManager": "pnpm@9.15.9"
 }

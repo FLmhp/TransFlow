@@ -3,9 +3,9 @@
  * Kept in a TS template string so the content script bundle is self-contained
  * and does not need a `web_accessible_resources` CSS round-trip.
  */
-import $ from 'jquery';
+import $ from "jquery";
 
-const STYLE_ID = 'transflow-global-style';
+const STYLE_ID = "transflow-global-style";
 
 const CSS = /* css */ `
   .transflow-translation {
@@ -61,9 +61,9 @@ const CSS = /* css */ `
 export function injectGlobalStyles(color: string, fontSize: number): void {
   let $style = $(`#${STYLE_ID}`);
   if ($style.length === 0) {
-    $style = $('<style/>', { id: STYLE_ID }).text(CSS);
-    $('head').append($style);
+    $style = $("<style/>", { id: STYLE_ID }).text(CSS);
+    $("head").append($style);
   }
-  document.documentElement.style.setProperty('--transflow-color', color);
-  document.documentElement.style.setProperty('--transflow-font-size', `${fontSize}%`);
+  document.documentElement.style.setProperty("--transflow-color", color);
+  document.documentElement.style.setProperty("--transflow-font-size", `${fontSize}%`);
 }

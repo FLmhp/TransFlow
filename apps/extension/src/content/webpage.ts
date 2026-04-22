@@ -5,17 +5,31 @@
  * translations, and inserts a sibling `<span class="transflow-translation">`
  * node either below or above each original.
  */
-import $ from 'jquery';
-import type { Settings } from '@transflow/core';
-import { requestTranslation } from './messaging.js';
+import $ from "jquery";
+import type { Settings } from "@transflow/core";
+import { requestTranslation } from "./messaging.js";
 
-const ATTR_TRANSLATED = 'data-transflow-translated';
-const CLASS_TRANSLATION = 'transflow-translation';
+const ATTR_TRANSLATED = "data-transflow-translated";
+const CLASS_TRANSLATION = "transflow-translation";
 
-const TARGET_TAGS = ['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'li', 'td', 'th', 'blockquote', 'figcaption'];
-const SKIP_PARENTS = 'script, style, noscript, code, pre, kbd, samp, var, button, input, select, textarea, svg, canvas, math';
+const TARGET_TAGS = [
+  "p",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "li",
+  "td",
+  "th",
+  "blockquote",
+  "figcaption",
+];
+const SKIP_PARENTS =
+  "script, style, noscript, code, pre, kbd, samp, var, button, input, select, textarea, svg, canvas, math";
 
-const TARGET_SELECTOR = TARGET_TAGS.join(',');
+const TARGET_SELECTOR = TARGET_TAGS.join(",");
 
 export interface WebpageModule {
   start(): Promise<void>;
@@ -32,7 +46,7 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       .filter(function () {
         if (this.hasAttribute(ATTR_TRANSLATED)) return false;
         if ($(this).closest(SKIP_PARENTS).length > 0) return false;
-        const text = (this.innerText ?? '').trim();
+        const text = (this.innerText ?? "").trim();
         return text.length > 3;
       })
       .toArray() as HTMLElement[];
@@ -41,15 +55,15 @@ export function createWebpageModule(settings: Settings): WebpageModule {
   async function translateOne(el: HTMLElement): Promise<void> {
     if (!active) return;
     if (el.hasAttribute(ATTR_TRANSLATED)) return;
-    const original = (el.innerText ?? '').trim();
+    const original = (el.innerText ?? "").trim();
     if (original.length < 4) return;
 
-    el.setAttribute(ATTR_TRANSLATED, '1');
+    el.setAttribute(ATTR_TRANSLATED, "1");
     const translated = await requestTranslation(original);
     if (!translated || !active) return;
 
-    const $span = $('<span/>', { class: CLASS_TRANSLATION }).text(translated);
-    if (settings.translationPosition === 'above') {
+    const $span = $("<span/>", { class: CLASS_TRANSLATION }).text(translated);
+    if (settings.translationPosition === "above") {
       $(el).before($span);
     } else {
       $(el).after($span);

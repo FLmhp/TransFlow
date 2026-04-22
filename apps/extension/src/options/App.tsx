@@ -1,4 +1,4 @@
-import { createSignal, Show, For, type Component } from 'solid-js';
+import { createSignal, Show, For, type Component } from "solid-js";
 import {
   DEFAULT_SETTINGS,
   ENGINE_DESCRIPTORS,
@@ -6,31 +6,31 @@ import {
   TARGET_LANGUAGES,
   type Settings,
   type TranslationEngine,
-} from '@transflow/core';
+} from "@transflow/core";
 import {
   broadcastSettingsToAllTabs,
   loaded,
   settings,
   updateSettings,
-} from '../shared/settings-store.js';
+} from "../shared/settings-store.js";
 
-type Section = 'general' | 'engines' | 'appearance' | 'about';
+type Section = "general" | "engines" | "appearance" | "about";
 
 const OPENAI_MODELS: readonly { value: string; label: string }[] = [
-  { value: 'gpt-4o-mini', label: 'gpt-4o-mini (recommended, fast & cheap)' },
-  { value: 'gpt-4o', label: 'gpt-4o (best quality)' },
-  { value: 'gpt-4-turbo', label: 'gpt-4-turbo' },
-  { value: 'gpt-3.5-turbo', label: 'gpt-3.5-turbo (fastest)' },
+  { value: "gpt-4o-mini", label: "gpt-4o-mini (recommended, fast & cheap)" },
+  { value: "gpt-4o", label: "gpt-4o (best quality)" },
+  { value: "gpt-4-turbo", label: "gpt-4-turbo" },
+  { value: "gpt-3.5-turbo", label: "gpt-3.5-turbo (fastest)" },
 ];
 
 const GEMINI_MODELS: readonly { value: string; label: string }[] = [
-  { value: 'gemini-1.5-flash', label: 'gemini-1.5-flash (fast)' },
-  { value: 'gemini-1.5-pro', label: 'gemini-1.5-pro (best quality)' },
-  { value: 'gemini-2.0-flash', label: 'gemini-2.0-flash' },
+  { value: "gemini-1.5-flash", label: "gemini-1.5-flash (fast)" },
+  { value: "gemini-1.5-pro", label: "gemini-1.5-pro (best quality)" },
+  { value: "gemini-2.0-flash", label: "gemini-2.0-flash" },
 ];
 
 export const App: Component = () => {
-  const [active, setActive] = createSignal<Section>('general');
+  const [active, setActive] = createSignal<Section>("general");
   const [bannerVisible, setBannerVisible] = createSignal(false);
   let bannerTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -50,7 +50,7 @@ export const App: Component = () => {
   };
 
   const onReset = async () => {
-    if (!confirm('Reset all settings to defaults?')) return;
+    if (!confirm("Reset all settings to defaults?")) return;
     await updateSettings({ ...DEFAULT_SETTINGS });
     showBanner();
   };
@@ -64,17 +64,21 @@ export const App: Component = () => {
             <span>TransFlow</span>
           </div>
           <ul class="sidebar-nav">
-            <For each={[
-              { id: 'general', label: '⚙ General' },
-              { id: 'engines', label: '🔧 Engines' },
-              { id: 'appearance', label: '🎨 Appearance' },
-              { id: 'about', label: 'ℹ About' },
-            ] as const}>
+            <For
+              each={
+                [
+                  { id: "general", label: "⚙ General" },
+                  { id: "engines", label: "🔧 Engines" },
+                  { id: "appearance", label: "🎨 Appearance" },
+                  { id: "about", label: "ℹ About" },
+                ] as const
+              }
+            >
               {(item) => (
                 <li>
                   <a
                     href={`#${item.id}`}
-                    class={`nav-link ${active() === item.id ? 'active' : ''}`}
+                    class={`nav-link ${active() === item.id ? "active" : ""}`}
                     onClick={(e) => {
                       e.preventDefault();
                       setActive(item.id);
@@ -93,7 +97,7 @@ export const App: Component = () => {
             <div class="save-banner">✓ Settings saved</div>
           </Show>
 
-          <Show when={active() === 'general'}>
+          <Show when={active() === "general"}>
             <section class="settings-section">
               <h2>General Settings</h2>
 
@@ -163,7 +167,9 @@ export const App: Component = () => {
                   <select
                     value={settings().translationPosition}
                     onChange={(e) =>
-                      void update({ translationPosition: e.currentTarget.value as 'below' | 'above' })
+                      void update({
+                        translationPosition: e.currentTarget.value as "below" | "above",
+                      })
                     }
                   >
                     <option value="below">Below original</option>
@@ -174,7 +180,7 @@ export const App: Component = () => {
             </section>
           </Show>
 
-          <Show when={active() === 'engines'}>
+          <Show when={active() === "engines"}>
             <section class="settings-section">
               <h2>Translation Engines</h2>
               <div class="card">
@@ -188,20 +194,26 @@ export const App: Component = () => {
                     }
                   >
                     <For each={ENGINE_DESCRIPTORS}>
-                      {(engine) => <option value={engine.id}>{engine.label} — {engine.description}</option>}
+                      {(engine) => (
+                        <option value={engine.id}>
+                          {engine.label} — {engine.description}
+                        </option>
+                      )}
                     </For>
                   </select>
                 </div>
               </div>
 
-              <Show when={settings().engine === 'google'}>
+              <Show when={settings().engine === "google"}>
                 <div class="card">
                   <h3>🔍 Google Translate</h3>
-                  <p class="hint">Free Google Translate web API. No API key needed. Rate limits may apply.</p>
+                  <p class="hint">
+                    Free Google Translate web API. No API key needed. Rate limits may apply.
+                  </p>
                 </div>
               </Show>
 
-              <Show when={settings().engine === 'deepl'}>
+              <Show when={settings().engine === "deepl"}>
                 <div class="card">
                   <h3>📘 DeepL</h3>
                   <div class="form-row">
@@ -225,7 +237,7 @@ export const App: Component = () => {
                     </label>
                   </div>
                   <p class="hint">
-                    Get a free API key at{' '}
+                    Get a free API key at{" "}
                     <a href="https://www.deepl.com/pro-api" target="_blank" rel="noreferrer">
                       deepl.com/pro-api
                     </a>
@@ -233,7 +245,7 @@ export const App: Component = () => {
                 </div>
               </Show>
 
-              <Show when={settings().engine === 'openai'}>
+              <Show when={settings().engine === "openai"}>
                 <div class="card">
                   <h3>🤖 OpenAI GPT</h3>
                   <div class="form-row">
@@ -257,7 +269,7 @@ export const App: Component = () => {
                     </select>
                   </div>
                   <p class="hint">
-                    Get an API key at{' '}
+                    Get an API key at{" "}
                     <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
                       platform.openai.com
                     </a>
@@ -265,7 +277,7 @@ export const App: Component = () => {
                 </div>
               </Show>
 
-              <Show when={settings().engine === 'gemini'}>
+              <Show when={settings().engine === "gemini"}>
                 <div class="card">
                   <h3>✨ Google Gemini</h3>
                   <div class="form-row">
@@ -289,8 +301,12 @@ export const App: Component = () => {
                     </select>
                   </div>
                   <p class="hint">
-                    Get an API key at{' '}
-                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer">
+                    Get an API key at{" "}
+                    <a
+                      href="https://aistudio.google.com/app/apikey"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
                       Google AI Studio
                     </a>
                   </p>
@@ -299,7 +315,7 @@ export const App: Component = () => {
             </section>
           </Show>
 
-          <Show when={active() === 'appearance'}>
+          <Show when={active() === "appearance"}>
             <section class="settings-section">
               <h2>Appearance</h2>
               <div class="card">
@@ -334,8 +350,8 @@ export const App: Component = () => {
                   class="preview-translation"
                   style={{
                     color: settings().translationColor,
-                    'border-left-color': settings().translationColor,
-                    'font-size': `${settings().translationFontSize}%`,
+                    "border-left-color": settings().translationColor,
+                    "font-size": `${settings().translationFontSize}%`,
                   }}
                 >
                   快速的棕色狐狸跳过了懒狗。
@@ -344,7 +360,7 @@ export const App: Component = () => {
             </section>
           </Show>
 
-          <Show when={active() === 'about'}>
+          <Show when={active() === "about"}>
             <section class="settings-section">
               <h2>About TransFlow</h2>
               <div class="card">
@@ -363,8 +379,12 @@ export const App: Component = () => {
           </Show>
 
           <div class="save-row">
-            <button class="btn-primary" onClick={onSave}>Save &amp; Apply</button>
-            <button class="btn-secondary" onClick={onReset}>Reset to Defaults</button>
+            <button class="btn-primary" onClick={onSave}>
+              Save &amp; Apply
+            </button>
+            <button class="btn-secondary" onClick={onReset}>
+              Reset to Defaults
+            </button>
           </div>
         </main>
       </div>

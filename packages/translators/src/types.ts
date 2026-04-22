@@ -1,4 +1,4 @@
-import type { Settings, TranslationEngine } from '@transflow/core';
+import type { Settings, TranslationEngine } from "@transflow/core";
 
 export interface TranslationRequest {
   text: string;
@@ -22,7 +22,7 @@ export class TranslationError extends Error {
 
   constructor(engine: TranslationEngine, message: string, status?: number) {
     super(`[${engine}] ${message}`);
-    this.name = 'TranslationError';
+    this.name = "TranslationError";
     this.engine = engine;
     this.status = status;
   }

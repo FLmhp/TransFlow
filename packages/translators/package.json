@@ -2,6 +2,9 @@
   "name": "@transflow/translators",
   "version": "1.0.0",
   "private": true,
+  "files": [
+    "dist"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -12,7 +15,6 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist"],
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",

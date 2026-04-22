@@ -1,11 +1,11 @@
-import { Show, For, type Component } from 'solid-js';
+import { Show, For, type Component } from "solid-js";
 import {
   ENGINE_DESCRIPTORS,
   SOURCE_LANGUAGES,
   TARGET_LANGUAGES,
   type TranslationEngine,
-} from '@transflow/core';
-import { loaded, settings, updateSettings } from '../shared/settings-store.js';
+} from "@transflow/core";
+import { loaded, settings, updateSettings } from "../shared/settings-store.js";
 
 export const App: Component = () => {
   const toggleEnabled = (event: Event & { currentTarget: HTMLInputElement }) =>
@@ -15,7 +15,7 @@ export const App: Component = () => {
 
   const swapLangs = () => {
     const { sourceLang, targetLang } = settings();
-    if (sourceLang === 'auto') return;
+    if (sourceLang === "auto") return;
     updateSettings({ sourceLang: targetLang, targetLang: sourceLang });
   };
 
@@ -33,8 +33,8 @@ export const App: Component = () => {
           </label>
         </header>
 
-        <div class={`status-bar ${settings().enabled ? 'active' : ''}`}>
-          <span>{settings().enabled ? '✓ Translation active' : 'Translation disabled'}</span>
+        <div class={`status-bar ${settings().enabled ? "active" : ""}`}>
+          <span>{settings().enabled ? "✓ Translation active" : "Translation disabled"}</span>
         </div>
 
         <section class="section">
@@ -73,7 +73,7 @@ export const App: Component = () => {
             <For each={ENGINE_DESCRIPTORS}>
               {(engine) => (
                 <label
-                  class={`engine-option ${settings().engine === engine.id ? 'selected' : ''}`}
+                  class={`engine-option ${settings().engine === engine.id ? "selected" : ""}`}
                   onClick={() => setEngine(engine.id)}
                 >
                   <input type="radio" name="engine" checked={settings().engine === engine.id} />
@@ -108,10 +108,7 @@ export const App: Component = () => {
         </section>
 
         <div class="popup-actions">
-          <button
-            class="btn-secondary"
-            onClick={() => chrome.runtime.openOptionsPage()}
-          >
+          <button class="btn-secondary" onClick={() => chrome.runtime.openOptionsPage()}>
             ⚙ Settings
           </button>
           <button

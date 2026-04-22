@@ -1,4 +1,4 @@
-import type { Settings } from './settings.js';
+import type { Settings } from "./settings.js";
 
 /**
  * Structured message protocol between the content script, popup, options
@@ -7,46 +7,46 @@ import type { Settings } from './settings.js';
  */
 
 export type MessageType =
-  | 'TRANSLATE'
-  | 'GET_SETTINGS'
-  | 'SAVE_SETTINGS'
-  | 'SETTINGS_UPDATED'
-  | 'TOGGLE_TRANSLATION'
-  | 'SHOW_TOOLTIP'
-  | 'SHOW_ERROR';
+  | "TRANSLATE"
+  | "GET_SETTINGS"
+  | "SAVE_SETTINGS"
+  | "SETTINGS_UPDATED"
+  | "TOGGLE_TRANSLATION"
+  | "SHOW_TOOLTIP"
+  | "SHOW_ERROR";
 
 export interface TranslateMessage {
-  type: 'TRANSLATE';
+  type: "TRANSLATE";
   text: string;
   sourceLang?: string;
   targetLang?: string;
 }
 
 export interface GetSettingsMessage {
-  type: 'GET_SETTINGS';
+  type: "GET_SETTINGS";
 }
 
 export interface SaveSettingsMessage {
-  type: 'SAVE_SETTINGS';
+  type: "SAVE_SETTINGS";
   settings: Partial<Settings>;
 }
 
 export interface SettingsUpdatedMessage {
-  type: 'SETTINGS_UPDATED';
+  type: "SETTINGS_UPDATED";
   settings: Settings;
 }
 
 export interface ToggleTranslationMessage {
-  type: 'TOGGLE_TRANSLATION';
+  type: "TOGGLE_TRANSLATION";
 }
 
 export interface ShowTooltipMessage {
-  type: 'SHOW_TOOLTIP';
+  type: "SHOW_TOOLTIP";
   text: string;
 }
 
 export interface ShowErrorMessage {
-  type: 'SHOW_ERROR';
+  type: "SHOW_ERROR";
   text: string;
 }
 

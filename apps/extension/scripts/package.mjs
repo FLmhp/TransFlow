@@ -7,25 +7,25 @@
  *     (after unzipping) or installed directly on Edge / Chromium browsers
  *     that support .zip uploads.
  */
-import { cp, mkdir, readdir, rm, stat } from 'node:fs/promises';
-import { createWriteStream, existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import archiver from 'archiver';
+import { cp, mkdir, readdir, rm, stat } from "node:fs/promises";
+import { createWriteStream, existsSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import archiver from "archiver";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, '..');
-const DIST = join(ROOT, 'dist');
-const PUBLIC_DIR = join(ROOT, 'public');
-const SRC = join(ROOT, 'src');
+const ROOT = resolve(__dirname, "..");
+const DIST = join(ROOT, "dist");
+const PUBLIC_DIR = join(ROOT, "public");
+const SRC = join(ROOT, "src");
 
 /** Static files copied verbatim into dist/. */
 const STATIC_COPIES = [
-  { from: join(ROOT, 'manifest.json'), to: join(DIST, 'manifest.json') },
-  { from: join(SRC, 'popup', 'index.html'), to: join(DIST, 'popup', 'index.html') },
-  { from: join(SRC, 'popup', 'styles.css'), to: join(DIST, 'popup', 'styles.css') },
-  { from: join(SRC, 'options', 'index.html'), to: join(DIST, 'options', 'index.html') },
-  { from: join(SRC, 'options', 'styles.css'), to: join(DIST, 'options', 'styles.css') },
+  { from: join(ROOT, "manifest.json"), to: join(DIST, "manifest.json") },
+  { from: join(SRC, "popup", "index.html"), to: join(DIST, "popup", "index.html") },
+  { from: join(SRC, "popup", "styles.css"), to: join(DIST, "popup", "styles.css") },
+  { from: join(SRC, "options", "index.html"), to: join(DIST, "options", "index.html") },
+  { from: join(SRC, "options", "styles.css"), to: join(DIST, "options", "styles.css") },
 ];
 
 async function copyStatic() {
@@ -43,22 +43,22 @@ async function copyStatic() {
 }
 
 async function zipExtension() {
-  const zipPath = join(DIST, 'transflow-extension.zip');
+  const zipPath = join(DIST, "transflow-extension.zip");
   if (existsSync(zipPath)) await rm(zipPath);
 
-  await new Promise<void>((resolvePromise, rejectPromise) => {
+  await new Promise((resolvePromise, rejectPromise) => {
     const output = createWriteStream(zipPath);
-    const archive = archiver('zip', { zlib: { level: 9 } });
+    const archive = archiver("zip", { zlib: { level: 9 } });
 
-    output.on('close', () => resolvePromise());
-    output.on('error', rejectPromise);
-    archive.on('error', rejectPromise);
+    output.on("close", () => resolvePromise());
+    output.on("error", rejectPromise);
+    archive.on("error", rejectPromise);
     archive.pipe(output);
 
     // Skip the zip itself and sourcemaps
-    archive.glob('**/*', {
+    archive.glob("**/*", {
       cwd: DIST,
-      ignore: ['transflow-extension.zip', '**/*.map'],
+      ignore: ["transflow-extension.zip", "**/*.map"],
       dot: false,
     });
     archive.finalize();
@@ -71,27 +71,27 @@ async function zipExtension() {
 
 async function sanityCheck() {
   const expected = [
-    join(DIST, 'manifest.json'),
-    join(DIST, 'background', 'service_worker.js'),
-    join(DIST, 'content', 'index.js'),
-    join(DIST, 'popup', 'index.html'),
-    join(DIST, 'popup', 'index.js'),
-    join(DIST, 'options', 'index.html'),
-    join(DIST, 'options', 'index.js'),
-    join(DIST, 'assets', 'icons', 'icon128.png'),
+    join(DIST, "manifest.json"),
+    join(DIST, "background", "service_worker.js"),
+    join(DIST, "content", "index.js"),
+    join(DIST, "popup", "index.html"),
+    join(DIST, "popup", "index.js"),
+    join(DIST, "options", "index.html"),
+    join(DIST, "options", "index.js"),
+    join(DIST, "assets", "icons", "icon128.png"),
   ];
   const missing = [];
   for (const path of expected) {
     if (!existsSync(path)) missing.push(path);
   }
   if (missing.length) {
-    console.error('Missing expected build outputs:');
-    for (const p of missing) console.error('  -', p);
+    console.error("Missing expected build outputs:");
+    for (const p of missing) console.error("  -", p);
     process.exit(1);
   }
 }
 
-async function listDist(dir, prefix = '') {
+async function listDist(dir, prefix = "") {
   const entries = await readdir(dir, { withFileTypes: true });
   for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
     if (entry.isDirectory()) {
@@ -106,7 +106,7 @@ async function listDist(dir, prefix = '') {
 (async () => {
   await copyStatic();
   await sanityCheck();
-  console.log('dist/ tree:');
+  console.log("dist/ tree:");
   await listDist(DIST);
   await zipExtension();
 })().catch((err) => {

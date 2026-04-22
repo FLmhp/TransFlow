@@ -1,9 +1,9 @@
-import type { TranslationEngine } from '@transflow/core';
-import { TranslationError, type Translator, type TranslationRequest } from './types.js';
-import { googleTranslator } from './google.js';
-import { deeplTranslator } from './deepl.js';
-import { openaiTranslator } from './openai.js';
-import { geminiTranslator } from './gemini.js';
+import type { TranslationEngine } from "@transflow/core";
+import { TranslationError, type Translator, type TranslationRequest } from "./types.js";
+import { googleTranslator } from "./google.js";
+import { deeplTranslator } from "./deepl.js";
+import { openaiTranslator } from "./openai.js";
+import { geminiTranslator } from "./gemini.js";
 
 const REGISTRY: Readonly<Record<TranslationEngine, Translator>> = Object.freeze({
   google: googleTranslator,
@@ -17,8 +17,8 @@ const REGISTRY: Readonly<Record<TranslationEngine, Translator>> = Object.freeze(
  * no side effects beyond calling the translator's fetch.
  */
 export async function translate(request: TranslationRequest): Promise<string> {
-  const text = request.text?.trim() ?? '';
-  if (!text) return '';
+  const text = request.text?.trim() ?? "";
+  if (!text) return "";
 
   const engine = request.settings.engine;
   const translator = REGISTRY[engine];

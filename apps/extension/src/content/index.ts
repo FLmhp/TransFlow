@@ -5,14 +5,14 @@
  * subtitle / tooltip) based on the current settings and listens for
  * settings updates coming from the popup or background.
  */
-import $ from 'jquery';
-import type { Message, Settings } from '@transflow/core';
-import { injectGlobalStyles } from './styles.js';
-import { bindTooltipDismissal, showTooltip } from './tooltip.js';
-import { loadSettings, sendMessage } from './messaging.js';
-import { createWebpageModule, type WebpageModule } from './webpage.js';
-import { createPdfModule, isPdfPage, type PdfModule } from './pdf.js';
-import { createSubtitleModule, type SubtitleModule } from './subtitle.js';
+import $ from "jquery";
+import type { Message, Settings } from "@transflow/core";
+import { injectGlobalStyles } from "./styles.js";
+import { bindTooltipDismissal, showTooltip } from "./tooltip.js";
+import { loadSettings, sendMessage } from "./messaging.js";
+import { createWebpageModule, type WebpageModule } from "./webpage.js";
+import { createPdfModule, isPdfPage, type PdfModule } from "./pdf.js";
+import { createSubtitleModule, type SubtitleModule } from "./subtitle.js";
 
 interface Runtime {
   settings: Settings | null;
@@ -73,21 +73,21 @@ async function applySettings(next: Settings): Promise<void> {
 
 chrome.runtime.onMessage.addListener((message: Message) => {
   switch (message.type) {
-    case 'SETTINGS_UPDATED':
+    case "SETTINGS_UPDATED":
       void applySettings(message.settings);
       break;
-    case 'TOGGLE_TRANSLATION': {
+    case "TOGGLE_TRANSLATION": {
       if (!runtime.settings) return;
       const nextEnabled = !runtime.settings.enabled;
       const merged: Settings = { ...runtime.settings, enabled: nextEnabled };
-      void sendMessage({ type: 'SAVE_SETTINGS', settings: { enabled: nextEnabled } });
+      void sendMessage({ type: "SAVE_SETTINGS", settings: { enabled: nextEnabled } });
       void applySettings(merged);
       break;
     }
-    case 'SHOW_TOOLTIP':
+    case "SHOW_TOOLTIP":
       showTooltip(message.text);
       break;
-    case 'SHOW_ERROR':
+    case "SHOW_ERROR":
       showTooltip(message.text, true);
       break;
     default:

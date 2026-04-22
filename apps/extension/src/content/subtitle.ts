@@ -2,22 +2,22 @@
  * Video subtitle translation — YouTube, Netflix, Disney+, Prime, Bilibili,
  * plus a generic selector for <track>/vtt-cue containers.
  */
-import $ from 'jquery';
-import { requestTranslation } from './messaging.js';
+import $ from "jquery";
+import { requestTranslation } from "./messaging.js";
 
-const CLASS_SUBTITLE = 'transflow-subtitle-translation';
-const ATTR_SUBTITLE = 'data-transflow-sub';
+const CLASS_SUBTITLE = "transflow-subtitle-translation";
+const ATTR_SUBTITLE = "data-transflow-sub";
 
 const SUBTITLE_SELECTORS = [
-  '.ytp-caption-segment',
-  '.player-timedtext-text-container span',
-  '.subtitles-container span',
-  '.atvwebplayersdk-captions-text',
-  '.bilibili-player-video-subtitle span',
-  '.vtt-cue',
+  ".ytp-caption-segment",
+  ".player-timedtext-text-container span",
+  ".subtitles-container span",
+  ".atvwebplayersdk-captions-text",
+  ".bilibili-player-video-subtitle span",
+  ".vtt-cue",
   '[class*="subtitle"] span',
   '[class*="caption"] span',
-].join(', ');
+].join(", ");
 
 export interface SubtitleModule {
   start(): void;
@@ -41,7 +41,7 @@ export function createSubtitleModule(): SubtitleModule {
 
   async function translateNode(el: HTMLElement): Promise<void> {
     if (!active) return;
-    const text = (el.textContent ?? '').trim();
+    const text = (el.textContent ?? "").trim();
     if (text.length < 2) return;
 
     const $existing = $(el).find(`.${CLASS_SUBTITLE}`);
@@ -59,18 +59,23 @@ export function createSubtitleModule(): SubtitleModule {
       cacheSet(text, translated);
     }
     if (!active) return;
-    $(el).append($('<span/>', { class: CLASS_SUBTITLE }).text(translated));
+    $(el).append($("<span/>", { class: CLASS_SUBTITLE }).text(translated));
   }
 
   function matchesSubtitle(el: Element): el is HTMLElement {
-    return typeof (el as HTMLElement).matches === 'function' && (el as HTMLElement).matches(SUBTITLE_SELECTORS);
+    return (
+      typeof (el as HTMLElement).matches === "function" &&
+      (el as HTMLElement).matches(SUBTITLE_SELECTORS)
+    );
   }
 
   function processNode(node: Node): void {
     if (node.nodeType !== Node.ELEMENT_NODE) return;
     const el = node as HTMLElement;
     if (matchesSubtitle(el)) void translateNode(el);
-    el.querySelectorAll?.(SUBTITLE_SELECTORS).forEach((child) => void translateNode(child as HTMLElement));
+    el.querySelectorAll?.(SUBTITLE_SELECTORS).forEach(
+      (child) => void translateNode(child as HTMLElement),
+    );
   }
 
   return {
@@ -81,7 +86,7 @@ export function createSubtitleModule(): SubtitleModule {
         if (!active) return;
         for (const mutation of mutations) {
           for (const node of Array.from(mutation.addedNodes)) processNode(node);
-          if (mutation.type === 'characterData') {
+          if (mutation.type === "characterData") {
             const parent = mutation.target.parentElement;
             if (parent && matchesSubtitle(parent)) void translateNode(parent);
           }

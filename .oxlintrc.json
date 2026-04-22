@@ -11,11 +11,7 @@
     "es2024": true,
     "webextensions": true
   },
-  "ignorePatterns": [
-    "**/dist/**",
-    "**/node_modules/**",
-    "**/.turbo/**"
-  ],
+  "ignorePatterns": ["**/dist/**", "**/node_modules/**", "**/.turbo/**"],
   "rules": {
     "no-console": "off",
     "no-unused-vars": "off"

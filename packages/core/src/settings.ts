@@ -1,4 +1,4 @@
-import type { TranslationEngine } from './engines.js';
+import type { TranslationEngine } from "./engines.js";
 
 /**
  * User-facing settings persisted in `chrome.storage.sync`.
@@ -22,7 +22,7 @@ export interface Settings {
 
   // UX
   showOriginal: boolean;
-  translationPosition: 'below' | 'above';
+  translationPosition: "below" | "above";
   pdfEnabled: boolean;
   subtitleEnabled: boolean;
 
@@ -33,26 +33,26 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   enabled: false,
-  engine: 'google',
-  sourceLang: 'auto',
-  targetLang: 'zh-CN',
+  engine: "google",
+  sourceLang: "auto",
+  targetLang: "zh-CN",
 
-  deeplApiKey: '',
+  deeplApiKey: "",
   deeplIsPro: false,
-  openaiApiKey: '',
-  openaiModel: 'gpt-4o-mini',
-  geminiApiKey: '',
-  geminiModel: 'gemini-1.5-flash',
+  openaiApiKey: "",
+  openaiModel: "gpt-4o-mini",
+  geminiApiKey: "",
+  geminiModel: "gemini-1.5-flash",
 
   showOriginal: true,
-  translationPosition: 'below',
+  translationPosition: "below",
   pdfEnabled: true,
   subtitleEnabled: true,
 
-  translationColor: '#1a73e8',
+  translationColor: "#1a73e8",
   translationFontSize: 92,
 };
 
 export function mergeSettings(partial: Partial<Settings> | null | undefined): Settings {
-  return { ...DEFAULT_SETTINGS, ...(partial ?? {}) };
+  return partial ? { ...DEFAULT_SETTINGS, ...partial } : { ...DEFAULT_SETTINGS };
 }
