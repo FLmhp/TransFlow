@@ -14,15 +14,30 @@ import {
   type Settings,
   type TranslateResponse,
 } from "@transflow/core";
-import { TranslatorRegistry } from "@transflow/translator";
+import { TranslationCache, TranslatorRegistry } from "@transflow/translator";
 import { googleTranslator } from "@transflow/google-translator";
 import { openaiTranslator } from "@transflow/openai-translator";
 
 // Single shared registry. To add a new engine: implement the abstract
 // `Translator` class in its own package and register it here.
-const translators = new TranslatorRegistry([googleTranslator, openaiTranslator]);
-const translate = (request: Parameters<typeof translators.translate>[0]) =>
-  translators.translate(request);
+const translationCache = new TranslationCache({
+  maxEntries: DEFAULT_SETTINGS.cacheMaxEntries,
+  ttlMs: DEFAULT_SETTINGS.cacheTtlMinutes * 60_000,
+});
+const translators = new TranslatorRegistry(
+  [googleTranslator, openaiTranslator],
+  translationCache,
+);
+const translate = (request: Parameters<typeof translators.translate>[0]) => {
+  // Apply the user's current cache sizing/TTL before each request so edits
+  // in the options page take effect immediately (shrinking `maxEntries`
+  // evicts oldest entries synchronously).
+  translationCache.configure({
+    maxEntries: request.settings.cacheMaxEntries,
+    ttlMs: Math.max(1, request.settings.cacheTtlMinutes) * 60_000,
+  });
+  return translators.translate(request);
+};
 
 // ─── Install / startup ────────────────────────────────────────────────────────
 

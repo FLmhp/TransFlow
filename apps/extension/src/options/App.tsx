@@ -171,6 +171,53 @@ export const App: Component = () => {
                   </select>
                 </div>
               </div>
+
+              <div class="card">
+                <h3>Translation Cache</h3>
+                <p class="hint">
+                  Cache identical translations in memory to save API calls and latency. The
+                  cache lives only for the current browser session.
+                </p>
+                <div class="form-row toggle-row">
+                  <span>Enable translation cache</span>
+                  <label class="toggle-switch">
+                    <input
+                      type="checkbox"
+                      checked={settings().cacheEnabled}
+                      onChange={(e) => void update({ cacheEnabled: e.currentTarget.checked })}
+                    />
+                    <span class="slider" />
+                  </label>
+                </div>
+                <div class="form-row">
+                  <label>Entry TTL (minutes)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="1440"
+                    step="1"
+                    value={settings().cacheTtlMinutes}
+                    onInput={(e) => {
+                      const value = Math.max(1, Math.floor(Number(e.currentTarget.value) || 0));
+                      void update({ cacheTtlMinutes: value });
+                    }}
+                  />
+                </div>
+                <div class="form-row">
+                  <label>Max entries (LRU)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100000"
+                    step="1"
+                    value={settings().cacheMaxEntries}
+                    onInput={(e) => {
+                      const value = Math.max(1, Math.floor(Number(e.currentTarget.value) || 0));
+                      void update({ cacheMaxEntries: value });
+                    }}
+                  />
+                </div>
+              </div>
             </section>
           </Show>
 

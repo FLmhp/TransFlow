@@ -28,6 +28,15 @@ export interface Settings {
   // Appearance
   translationColor: string;
   translationFontSize: number;
+
+  // Translation result cache (service-worker memory, LRU + TTL).
+  // `cacheEnabled` toggles caching entirely. `cacheTtlMinutes` is how long
+  // an entry remains valid before being discarded on read. `cacheMaxEntries`
+  // bounds total entries; the least-recently-used entry is evicted when the
+  // limit is reached.
+  cacheEnabled: boolean;
+  cacheTtlMinutes: number;
+  cacheMaxEntries: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -47,6 +56,10 @@ export const DEFAULT_SETTINGS: Settings = {
 
   translationColor: "#1a73e8",
   translationFontSize: 92,
+
+  cacheEnabled: true,
+  cacheTtlMinutes: 60,
+  cacheMaxEntries: 500,
 };
 
 export function mergeSettings(partial: Partial<Settings> | null | undefined): Settings {
