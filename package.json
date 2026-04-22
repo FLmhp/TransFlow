@@ -7,7 +7,7 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "oxlint --type-aware && turbo run typecheck",
+    "lint": "turbo run build && oxlint --type-aware && turbo run typecheck",
     "typecheck": "turbo run typecheck",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
