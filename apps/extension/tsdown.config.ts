@@ -11,7 +11,7 @@ const common = {
   // specifiers like "solid-js" or "@transflow/core" cannot be resolved at
   // runtime, so every dependency (including workspace packages) must be
   // inlined into the output bundle.
-  deps: { alwaysBundle: [/.*/] as (string | RegExp)[] },
+  deps: { alwaysBundle: [/.*/] },
 };
 
 /**

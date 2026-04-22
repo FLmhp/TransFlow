@@ -9,15 +9,33 @@ const [settings, setSettingsSignal] = createSignal<Settings>(mergeSettings(null)
 const [loaded, setLoaded] = createSignal(false);
 
 function send<T>(message: Message): Promise<T> {
-  return new Promise((resolve) => chrome.runtime.sendMessage(message, (res: T) => resolve(res)));
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(message, (res: T) => {
+      const err = chrome.runtime.lastError;
+      if (err) {
+        reject(new Error(err.message ?? "chrome.runtime.sendMessage failed"));
+        return;
+      }
+      resolve(res);
+    });
+  });
 }
 
 export async function initSettings(): Promise<void> {
-  const fetched = await send<Settings>({ type: "GET_SETTINGS" });
-  batch(() => {
-    setSettingsSignal(mergeSettings(fetched));
-    setLoaded(true);
-  });
+  try {
+    const fetched = await send<Settings>({ type: "GET_SETTINGS" });
+    batch(() => {
+      setSettingsSignal(mergeSettings(fetched));
+      setLoaded(true);
+    });
+  } catch (err) {
+    console.error("[TransFlow] Failed to initialize settings:", err);
+    // Fall back to defaults so the UI still renders.
+    batch(() => {
+      setSettingsSignal(mergeSettings(null));
+      setLoaded(true);
+    });
+  }
 }
 
 export { settings, loaded };

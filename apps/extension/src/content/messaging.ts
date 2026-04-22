@@ -5,8 +5,15 @@
 import type { Message, Settings, TranslateResponse } from "@transflow/core";
 
 export function sendMessage<TRes = unknown>(message: Message): Promise<TRes> {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(message, (response: TRes) => resolve(response));
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(message, (response: TRes) => {
+      const err = chrome.runtime.lastError;
+      if (err) {
+        reject(new Error(err.message ?? "chrome.runtime.sendMessage failed"));
+        return;
+      }
+      resolve(response);
+    });
   });
 }
 
@@ -21,5 +28,10 @@ export async function requestTranslation(text: string): Promise<string | null> {
 }
 
 export async function loadSettings(): Promise<Settings> {
-  return sendMessage<Settings>({ type: "GET_SETTINGS" });
+  try {
+    return await sendMessage<Settings>({ type: "GET_SETTINGS" });
+  } catch (err) {
+    console.warn("[TransFlow] Failed to load settings:", err);
+    throw err;
+  }
 }
