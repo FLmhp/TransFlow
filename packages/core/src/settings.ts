@@ -20,8 +20,16 @@ export interface Settings {
   openaiModel: string;
 
   // UX
+  // `showOriginal` toggles bilingual vs. translation-only display. When
+  // `false`, the original block is hidden via CSS and only the translation
+  // is rendered in its place.
   showOriginal: boolean;
   translationPosition: "below" | "above";
+  // Visual theme applied to the inserted translation node. `normal` is the
+  // classic colored block; the other themes are inspired by immersive
+  // translate (underline under the translation, dashed underline, yellow
+  // highlight, and a blur-until-hover "mask" style).
+  translationTheme: "normal" | "underline" | "dashed" | "highlight" | "mask";
   pdfEnabled: boolean;
   subtitleEnabled: boolean;
 
@@ -51,6 +59,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
   showOriginal: true,
   translationPosition: "below",
+  translationTheme: "normal",
   pdfEnabled: true,
   subtitleEnabled: true,
 

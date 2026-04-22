@@ -14,10 +14,61 @@ const CSS = /* css */ `
     font-size: var(--transflow-font-size, 0.92em);
     line-height: 1.5;
     margin: 4px 0 8px 0;
-    padding: 2px 0 2px 8px;
-    border-left: 3px solid var(--transflow-color, #1a73e8);
     font-family: inherit;
   }
+  /* Translation-only mode: hide the original block's text/child content
+     while keeping our translation child visible. Direct element children
+     are hidden via display:none; direct text nodes are collapsed by
+     zeroing the block's own font-size. The translation child restores its
+     font size through the CSS variable below. */
+  [data-transflow-hide-original] {
+    font-size: 0 !important;
+  }
+  [data-transflow-hide-original] > *:not(.transflow-translation) {
+    display: none !important;
+  }
+  [data-transflow-hide-original] > .transflow-translation {
+    font-size: var(--transflow-font-size, 0.92em);
+  }
+
+  /* Loading placeholder — subtle pulsing ellipsis while awaiting response. */
+  .transflow-translation.transflow-translation-loading {
+    opacity: 0.55;
+    font-style: italic;
+  }
+
+  /* Themes — inspired by the old immersive-translate display styles. */
+  .transflow-translation.transflow-theme-normal {
+    padding: 2px 0 2px 8px;
+    border-left: 3px solid var(--transflow-color, #1a73e8);
+  }
+  .transflow-translation.transflow-theme-underline {
+    text-decoration: underline;
+    text-decoration-color: var(--transflow-color, #1a73e8);
+    text-underline-offset: 3px;
+    padding: 2px 0;
+  }
+  .transflow-translation.transflow-theme-dashed {
+    text-decoration: underline dashed;
+    text-decoration-color: var(--transflow-color, #1a73e8);
+    text-underline-offset: 3px;
+    padding: 2px 0;
+  }
+  .transflow-translation.transflow-theme-highlight {
+    background: color-mix(in srgb, var(--transflow-color, #1a73e8) 18%, transparent);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .transflow-translation.transflow-theme-mask {
+    filter: blur(4px);
+    transition: filter 0.2s ease;
+    padding: 2px 0 2px 8px;
+    border-left: 3px solid var(--transflow-color, #1a73e8);
+  }
+  .transflow-translation.transflow-theme-mask:hover {
+    filter: blur(0);
+  }
+
   .transflow-pdf-translation {
     display: block;
     color: var(--transflow-color, #1a73e8);

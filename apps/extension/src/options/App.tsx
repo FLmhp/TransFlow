@@ -170,6 +170,30 @@ export const App: Component = () => {
                     <option value="above">原文上方</option>
                   </select>
                 </div>
+                <div class="form-row">
+                  <label>译文样式</label>
+                  <select
+                    value={settings().translationTheme}
+                    onChange={(e) => {
+                      const value = e.currentTarget.value;
+                      if (
+                        value === "normal" ||
+                        value === "underline" ||
+                        value === "dashed" ||
+                        value === "highlight" ||
+                        value === "mask"
+                      ) {
+                        void update({ translationTheme: value });
+                      }
+                    }}
+                  >
+                    <option value="normal">常规（色条边框）</option>
+                    <option value="underline">下划线</option>
+                    <option value="dashed">虚线下划线</option>
+                    <option value="highlight">高亮背景</option>
+                    <option value="mask">模糊遮罩（悬停显示）</option>
+                  </select>
+                </div>
               </div>
 
               <div class="card">
@@ -328,12 +352,14 @@ export const App: Component = () => {
               </div>
               <div class="card">
                 <h3>预览</h3>
-                <p class="preview-original">The quick brown fox jumps over the lazy dog.</p>
+                <Show when={settings().showOriginal}>
+                  <p class="preview-original">The quick brown fox jumps over the lazy dog.</p>
+                </Show>
                 <p
-                  class="preview-translation"
+                  class={`preview-translation preview-theme-${settings().translationTheme}`}
                   style={{
                     color: settings().translationColor,
-                    "border-left-color": settings().translationColor,
+                    "--transflow-color": settings().translationColor,
                     "font-size": `${settings().translationFontSize}%`,
                   }}
                 >

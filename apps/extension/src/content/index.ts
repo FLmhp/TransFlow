@@ -39,8 +39,13 @@ async function applySettings(next: Settings): Promise<void> {
     if (!runtime.webpage) {
       runtime.webpage = createWebpageModule(next);
       await runtime.webpage.start();
-    } else if (prev && prev.translationPosition !== next.translationPosition) {
-      // Rebuild to honor new position
+    } else if (
+      prev &&
+      (prev.translationPosition !== next.translationPosition ||
+        prev.translationTheme !== next.translationTheme ||
+        prev.showOriginal !== next.showOriginal)
+    ) {
+      // Rebuild to honor new display settings
       runtime.webpage.stop();
       runtime.webpage = createWebpageModule(next);
       await runtime.webpage.start();

@@ -2,15 +2,29 @@
  * Bilingual webpage translation.
  *
  * Collects visible block-level prose elements, asks the background for
- * translations, and inserts a sibling `<span class="transflow-translation">`
- * node either below or above each original.
+ * translations, and renders the translation as a sentinel child of each
+ * original element. Inserting the translation as a child (rather than as
+ * a sibling) preserves the layout of headings, list items and table cells
+ * that style their immediate children.
+ *
+ * Display is controlled by three settings:
+ *   - `translationPosition` — translation goes above or below the original
+ *     text within the same block.
+ *   - `showOriginal` — when `false`, the original text is visually hidden
+ *     (translation-only mode) while the element stays in the DOM.
+ *   - `translationTheme` — visual theme applied to the translation node
+ *     (normal/underline/dashed/highlight/mask), modelled after the old
+ *     immersive-translate display styles.
  */
 import $ from "jquery";
 import type { Settings } from "@transflow/core";
 import { requestTranslation } from "./messaging.js";
 
 const ATTR_TRANSLATED = "data-transflow-translated";
+const ATTR_HIDE_ORIGINAL = "data-transflow-hide-original";
 const CLASS_TRANSLATION = "transflow-translation";
+const CLASS_PLACEHOLDER = "transflow-translation-loading";
+const THEME_CLASS_PREFIX = "transflow-theme-";
 
 const TARGET_TAGS = [
   "p",
@@ -40,6 +54,8 @@ export function createWebpageModule(settings: Settings): WebpageModule {
   let active = false;
   let observer: MutationObserver | null = null;
 
+  const themeClass = `${THEME_CLASS_PREFIX}${settings.translationTheme}`;
+
   function findCandidates(root: ParentNode): HTMLElement[] {
     return $(root)
       .find(TARGET_SELECTOR)
@@ -52,22 +68,60 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       .toArray();
   }
 
+  function buildTranslationNode(text: string | null): HTMLSpanElement {
+    const classes = [CLASS_TRANSLATION, themeClass];
+    if (text === null) classes.push(CLASS_PLACEHOLDER);
+    const $node = $("<span/>", {
+      class: classes.join(" "),
+      "data-transflow-node": "translation",
+    }).text(text ?? "…");
+    return $node.get(0) as HTMLSpanElement;
+  }
+
+  function attach(el: HTMLElement, node: HTMLSpanElement): void {
+    if (settings.translationPosition === "above") {
+      el.insertBefore(node, el.firstChild);
+    } else {
+      el.appendChild(node);
+    }
+  }
+
   async function translateOne(el: HTMLElement): Promise<void> {
     if (!active) return;
     if (el.hasAttribute(ATTR_TRANSLATED)) return;
     const original = (el.innerText ?? "").trim();
     if (original.length < 4) return;
 
+    // Mark eagerly so concurrent batches and the mutation observer do not
+    // re-enter the same element while the request is in flight.
     el.setAttribute(ATTR_TRANSLATED, "1");
-    const translated = await requestTranslation(original);
-    if (!translated || !active) return;
-
-    const $span = $("<span/>", { class: CLASS_TRANSLATION }).text(translated);
-    if (settings.translationPosition === "above") {
-      $(el).before($span);
-    } else {
-      $(el).after($span);
+    if (!settings.showOriginal) {
+      el.setAttribute(ATTR_HIDE_ORIGINAL, "1");
     }
+
+    const placeholder = buildTranslationNode(null);
+    attach(el, placeholder);
+
+    // `requestTranslation` swallows its own errors and returns `null`, so
+    // a plain await is sufficient here.
+    const translated = await requestTranslation(original);
+
+    if (!active) {
+      placeholder.remove();
+      return;
+    }
+
+    if (!translated) {
+      // Roll back so the element can be retried on the next batch and the
+      // original stays readable.
+      placeholder.remove();
+      el.removeAttribute(ATTR_TRANSLATED);
+      el.removeAttribute(ATTR_HIDE_ORIGINAL);
+      return;
+    }
+
+    placeholder.classList.remove(CLASS_PLACEHOLDER);
+    placeholder.textContent = translated;
   }
 
   async function translateBatch(elements: HTMLElement[]): Promise<void> {
@@ -88,6 +142,8 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       for (const mutation of mutations) {
         for (const node of Array.from(mutation.addedNodes)) {
           if (!(node instanceof Element)) continue;
+          // Ignore mutations caused by our own inserted translation nodes.
+          if (node.matches?.(`.${CLASS_TRANSLATION}`)) continue;
           pending.push(...findCandidates(node));
         }
       }
@@ -109,6 +165,7 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       observer = null;
       $(`.${CLASS_TRANSLATION}`).remove();
       $(`[${ATTR_TRANSLATED}]`).removeAttr(ATTR_TRANSLATED);
+      $(`[${ATTR_HIDE_ORIGINAL}]`).removeAttr(ATTR_HIDE_ORIGINAL);
     },
   };
 }
