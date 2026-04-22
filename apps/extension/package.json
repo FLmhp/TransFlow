@@ -1,0 +1,27 @@
+{
+  "name": "@transflow/extension",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsdown && node scripts/package.mjs",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@transflow/core": "workspace:*",
+    "@transflow/translators": "workspace:*",
+    "jquery": "^4.0.0",
+    "solid-js": "^1.9.12"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.40",
+    "@types/jquery": "^4.0.0",
+    "@types/node": "^20.17.0",
+    "archiver": "^7.0.1",
+    "babel-preset-solid": "^1.9.12",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.0",
+    "unplugin-solid": "^1.0.0"
+  }
+}

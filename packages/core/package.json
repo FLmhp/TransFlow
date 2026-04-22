@@ -1,0 +1,25 @@
+{
+  "name": "@transflow/core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "clean": "rm -rf dist .turbo"
+  },
+  "devDependencies": {
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.0"
+  }
+}
