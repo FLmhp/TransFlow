@@ -14,6 +14,7 @@
     "@transflow/google-translator": "workspace:*",
     "@transflow/openai-translator": "workspace:*",
     "@transflow/translator": "workspace:*",
+    "goober": "^2.1.16",
     "jquery": "^4.0.0",
     "solid-js": "^1.9.12"
   },

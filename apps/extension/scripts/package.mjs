@@ -23,9 +23,7 @@ const SRC = join(ROOT, "src");
 const STATIC_COPIES = [
   { from: join(ROOT, "manifest.json"), to: join(DIST, "manifest.json") },
   { from: join(SRC, "popup", "index.html"), to: join(DIST, "popup", "index.html") },
-  { from: join(SRC, "popup", "styles.css"), to: join(DIST, "popup", "styles.css") },
   { from: join(SRC, "options", "index.html"), to: join(DIST, "options", "index.html") },
-  { from: join(SRC, "options", "styles.css"), to: join(DIST, "options", "styles.css") },
 ];
 
 async function copyStatic() {

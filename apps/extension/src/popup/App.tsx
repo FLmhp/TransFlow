@@ -6,6 +6,7 @@ import {
   type TranslationEngine,
 } from "@transflow/core";
 import { loaded, settings, updateSettings } from "../shared/settings-store.js";
+import * as s from "./styles.js";
 
 export const App: Component = () => {
   const toggleEnabled = (event: Event & { currentTarget: HTMLInputElement }) =>
@@ -20,26 +21,26 @@ export const App: Component = () => {
   };
 
   return (
-    <Show when={loaded()} fallback={<div class="popup-loading">加载中…</div>}>
-      <div class="popup-container">
-        <header class="popup-header">
-          <div class="logo">
-            <span class="logo-icon">🌐</span>
-            <span class="logo-text">TransFlow</span>
+    <Show when={loaded()} fallback={<div class={s.popupLoading}>加载中…</div>}>
+      <div class={s.popupContainer}>
+        <header class={s.popupHeader}>
+          <div class={s.logo}>
+            <span class={s.logoIcon}>🌐</span>
+            <span class={s.logoText}>TransFlow</span>
           </div>
-          <label class="toggle-switch" title="启用/停用翻译">
+          <label class={s.toggleSwitch} title="启用/停用翻译">
             <input type="checkbox" checked={settings().enabled} onChange={toggleEnabled} />
-            <span class="slider" />
+            <span class={s.slider} />
           </label>
         </header>
 
-        <div class={`status-bar ${settings().enabled ? "active" : ""}`}>
+        <div class={`${s.statusBar} ${settings().enabled ? "active" : ""}`}>
           <span>{settings().enabled ? "✓ 翻译已启用" : "翻译已停用"}</span>
         </div>
 
-        <section class="section">
-          <div class="row">
-            <div class="field">
+        <section class={s.section}>
+          <div class={s.row}>
+            <div class={s.field}>
               <label>源语言</label>
               <select
                 value={settings().sourceLang}
@@ -50,10 +51,10 @@ export const App: Component = () => {
                 </For>
               </select>
             </div>
-            <span class="swap-arrow" title="交换语言" onClick={swapLangs}>
+            <span class={s.swapArrow} title="交换语言" onClick={swapLangs}>
               ⇄
             </span>
-            <div class="field">
+            <div class={s.field}>
               <label>目标语言</label>
               <select
                 value={settings().targetLang}
@@ -67,17 +68,17 @@ export const App: Component = () => {
           </div>
         </section>
 
-        <section class="section">
-          <label class="section-label">翻译引擎</label>
-          <div class="engine-grid">
+        <section class={s.section}>
+          <label class={s.sectionLabel}>翻译引擎</label>
+          <div class={s.engineGrid}>
             <For each={ENGINE_DESCRIPTORS}>
               {(engine) => (
                 <label
-                  class={`engine-option ${settings().engine === engine.id ? "selected" : ""}`}
+                  class={`${s.engineOption} ${settings().engine === engine.id ? "selected" : ""}`}
                   onClick={() => setEngine(engine.id)}
                 >
                   <input type="radio" name="engine" checked={settings().engine === engine.id} />
-                  <span class="engine-icon">{engine.icon}</span>
+                  <span class={s.engineIcon}>{engine.icon}</span>
                   <span>{engine.label}</span>
                 </label>
               )}
@@ -85,10 +86,10 @@ export const App: Component = () => {
           </div>
         </section>
 
-        <section class="section">
-          <label class="section-label">功能</label>
-          <div class="feature-list">
-            <label class="feature-item">
+        <section class={s.section}>
+          <label class={s.sectionLabel}>功能</label>
+          <div class={s.featureList}>
+            <label class={s.featureItem}>
               <input
                 type="checkbox"
                 checked={settings().pdfEnabled}
@@ -96,7 +97,7 @@ export const App: Component = () => {
               />
               <span>📄 PDF 翻译</span>
             </label>
-            <label class="feature-item">
+            <label class={s.featureItem}>
               <input
                 type="checkbox"
                 checked={settings().subtitleEnabled}
@@ -107,12 +108,12 @@ export const App: Component = () => {
           </div>
         </section>
 
-        <div class="popup-actions">
-          <button class="btn-secondary" onClick={() => chrome.runtime.openOptionsPage()}>
+        <div class={s.popupActions}>
+          <button class={s.btnSecondary} onClick={() => chrome.runtime.openOptionsPage()}>
             ⚙ 设置
           </button>
           <button
-            class="btn-primary"
+            class={s.btnPrimary}
             onClick={async () => {
               await updateSettings({ enabled: true });
               window.close();

@@ -12,6 +12,7 @@ import {
   settings,
   updateSettings,
 } from "../shared/settings-store.js";
+import * as s from "./styles.js";
 
 type Section = "general" | "engines" | "appearance" | "about";
 
@@ -49,14 +50,14 @@ export const App: Component = () => {
   };
 
   return (
-    <Show when={loaded()} fallback={<div class="loading">加载中…</div>}>
-      <div class="page">
-        <nav class="sidebar">
-          <div class="sidebar-logo">
+    <Show when={loaded()} fallback={<div class={s.loading}>加载中…</div>}>
+      <div class={s.page}>
+        <nav class={s.sidebar}>
+          <div class={s.sidebarLogo}>
             <span>🌐</span>
             <span>TransFlow</span>
           </div>
-          <ul class="sidebar-nav">
+          <ul class={s.sidebarNav}>
             <For
               each={
                 [
@@ -71,7 +72,7 @@ export const App: Component = () => {
                 <li>
                   <a
                     href={`#${item.id}`}
-                    class={`nav-link ${active() === item.id ? "active" : ""}`}
+                    class={`${s.navLink} ${active() === item.id ? "active" : ""}`}
                     onClick={(e) => {
                       e.preventDefault();
                       setActive(item.id);
@@ -85,18 +86,18 @@ export const App: Component = () => {
           </ul>
         </nav>
 
-        <main class="content">
+        <main class={s.content}>
           <Show when={bannerVisible()}>
-            <div class="save-banner">✓ 设置已保存</div>
+            <div class={s.saveBanner}>✓ 设置已保存</div>
           </Show>
 
           <Show when={active() === "general"}>
-            <section class="settings-section">
+            <section>
               <h2>常规设置</h2>
 
-              <div class="card">
+              <div class={s.card}>
                 <h3>语言</h3>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>源语言</label>
                   <select
                     value={settings().sourceLang}
@@ -107,7 +108,7 @@ export const App: Component = () => {
                     </For>
                   </select>
                 </div>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>目标语言</label>
                   <select
                     value={settings().targetLang}
@@ -120,42 +121,42 @@ export const App: Component = () => {
                 </div>
               </div>
 
-              <div class="card">
+              <div class={s.card}>
                 <h3>功能</h3>
-                <div class="form-row toggle-row">
+                <div class={`${s.formRow} toggle-row`}>
                   <span>启用 PDF 翻译</span>
-                  <label class="toggle-switch">
+                  <label class={s.toggleSwitch}>
                     <input
                       type="checkbox"
                       checked={settings().pdfEnabled}
                       onChange={(e) => void update({ pdfEnabled: e.currentTarget.checked })}
                     />
-                    <span class="slider" />
+                    <span class={s.slider} />
                   </label>
                 </div>
-                <div class="form-row toggle-row">
+                <div class={`${s.formRow} toggle-row`}>
                   <span>启用视频字幕翻译</span>
-                  <label class="toggle-switch">
+                  <label class={s.toggleSwitch}>
                     <input
                       type="checkbox"
                       checked={settings().subtitleEnabled}
                       onChange={(e) => void update({ subtitleEnabled: e.currentTarget.checked })}
                     />
-                    <span class="slider" />
+                    <span class={s.slider} />
                   </label>
                 </div>
-                <div class="form-row toggle-row">
+                <div class={`${s.formRow} toggle-row`}>
                   <span>同时显示原文与译文</span>
-                  <label class="toggle-switch">
+                  <label class={s.toggleSwitch}>
                     <input
                       type="checkbox"
                       checked={settings().showOriginal}
                       onChange={(e) => void update({ showOriginal: e.currentTarget.checked })}
                     />
-                    <span class="slider" />
+                    <span class={s.slider} />
                   </label>
                 </div>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>译文位置</label>
                   <select
                     value={settings().translationPosition}
@@ -170,7 +171,7 @@ export const App: Component = () => {
                     <option value="above">原文上方</option>
                   </select>
                 </div>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>译文样式</label>
                   <select
                     value={settings().translationTheme}
@@ -196,23 +197,23 @@ export const App: Component = () => {
                 </div>
               </div>
 
-              <div class="card">
+              <div class={s.card}>
                 <h3>翻译缓存</h3>
-                <p class="hint">
+                <p class={s.hint}>
                   在内存中缓存相同的翻译结果，以减少接口调用并降低延迟。缓存仅在当前浏览器会话内有效。
                 </p>
-                <div class="form-row toggle-row">
+                <div class={`${s.formRow} toggle-row`}>
                   <span>启用翻译缓存</span>
-                  <label class="toggle-switch">
+                  <label class={s.toggleSwitch}>
                     <input
                       type="checkbox"
                       checked={settings().cacheEnabled}
                       onChange={(e) => void update({ cacheEnabled: e.currentTarget.checked })}
                     />
-                    <span class="slider" />
+                    <span class={s.slider} />
                   </label>
                 </div>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>条目有效期（分钟）</label>
                   <input
                     type="number"
@@ -226,7 +227,7 @@ export const App: Component = () => {
                     }}
                   />
                 </div>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>最大条目数（LRU）</label>
                   <input
                     type="number"
@@ -245,11 +246,11 @@ export const App: Component = () => {
           </Show>
 
           <Show when={active() === "engines"}>
-            <section class="settings-section">
+            <section>
               <h2>翻译引擎</h2>
-              <div class="card">
+              <div class={s.card}>
                 <h3>当前引擎</h3>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>选择引擎</label>
                   <select
                     value={settings().engine}
@@ -272,16 +273,16 @@ export const App: Component = () => {
               </div>
 
               <Show when={settings().engine === "google"}>
-                <div class="card">
+                <div class={s.card}>
                   <h3>🔍 谷歌翻译</h3>
-                  <p class="hint">免费的谷歌翻译网页接口，无需 API 密钥，可能存在速率限制。</p>
+                  <p class={s.hint}>免费的谷歌翻译网页接口，无需 API 密钥，可能存在速率限制。</p>
                 </div>
               </Show>
 
               <Show when={settings().engine === "openai"}>
-                <div class="card">
+                <div class={s.card}>
                   <h3>🤖 OpenAI GPT</h3>
-                  <div class="form-row">
+                  <div class={s.formRow}>
                     <label>OpenAI API 密钥</label>
                     <input
                       type="password"
@@ -290,7 +291,7 @@ export const App: Component = () => {
                       onInput={(e) => void update({ openaiApiKey: e.currentTarget.value })}
                     />
                   </div>
-                  <div class="form-row">
+                  <div class={s.formRow}>
                     <label>Base URL</label>
                     <input
                       type="text"
@@ -299,7 +300,7 @@ export const App: Component = () => {
                       onInput={(e) => void update({ openaiBaseUrl: e.currentTarget.value })}
                     />
                   </div>
-                  <div class="form-row">
+                  <div class={s.formRow}>
                     <label>模型</label>
                     <select
                       value={settings().openaiModel}
@@ -310,7 +311,7 @@ export const App: Component = () => {
                       </For>
                     </select>
                   </div>
-                  <p class="hint">
+                  <p class={s.hint}>
                     可在{" "}
                     <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
                       platform.openai.com
@@ -323,11 +324,11 @@ export const App: Component = () => {
           </Show>
 
           <Show when={active() === "appearance"}>
-            <section class="settings-section">
+            <section>
               <h2>外观</h2>
-              <div class="card">
+              <div class={s.card}>
                 <h3>译文样式</h3>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>译文文字颜色</label>
                   <input
                     type="color"
@@ -335,7 +336,7 @@ export const App: Component = () => {
                     onInput={(e) => void update({ translationColor: e.currentTarget.value })}
                   />
                 </div>
-                <div class="form-row">
+                <div class={s.formRow}>
                   <label>相对页面的字号（%）</label>
                   <input
                     type="range"
@@ -347,16 +348,16 @@ export const App: Component = () => {
                       void update({ translationFontSize: Number(e.currentTarget.value) })
                     }
                   />
-                  <span class="range-label">{settings().translationFontSize}%</span>
+                  <span class={s.rangeLabel}>{settings().translationFontSize}%</span>
                 </div>
               </div>
-              <div class="card">
+              <div class={s.card}>
                 <h3>预览</h3>
                 <Show when={settings().showOriginal}>
-                  <p class="preview-original">The quick brown fox jumps over the lazy dog.</p>
+                  <p class={s.previewOriginal}>The quick brown fox jumps over the lazy dog.</p>
                 </Show>
                 <p
-                  class={`preview-translation preview-theme-${settings().translationTheme}`}
+                  class={`${s.previewTranslation} preview-theme-${settings().translationTheme}`}
                   style={{
                     color: settings().translationColor,
                     "--transflow-color": settings().translationColor,
@@ -370,12 +371,12 @@ export const App: Component = () => {
           </Show>
 
           <Show when={active() === "about"}>
-            <section class="settings-section">
+            <section>
               <h2>关于 TransFlow</h2>
-              <div class="card">
+              <div class={s.card}>
                 <h3>TransFlow v1.0.0</h3>
                 <p>一款沉浸式双语翻译 Chrome 扩展，支持以下功能：</p>
-                <ul class="feature-list">
+                <ul class={s.featureList}>
                   <li>🌐 实时双语网页翻译</li>
                   <li>📄 PDF 文档翻译（PDF.js 文本层）</li>
                   <li>🎬 视频字幕翻译（YouTube、Netflix 等）</li>
@@ -387,11 +388,11 @@ export const App: Component = () => {
             </section>
           </Show>
 
-          <div class="save-row">
-            <button class="btn-primary" onClick={onSave}>
+          <div class={s.saveRow}>
+            <button class={s.btnPrimary} onClick={onSave}>
               保存并应用
             </button>
-            <button class="btn-secondary" onClick={onReset}>
+            <button class={s.btnSecondary} onClick={onReset}>
               恢复默认设置
             </button>
           </div>
