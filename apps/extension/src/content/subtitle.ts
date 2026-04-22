@@ -63,19 +63,15 @@ export function createSubtitleModule(): SubtitleModule {
   }
 
   function matchesSubtitle(el: Element): el is HTMLElement {
-    return (
-      typeof (el as HTMLElement).matches === "function" &&
-      (el as HTMLElement).matches(SUBTITLE_SELECTORS)
-    );
+    return el instanceof HTMLElement && el.matches(SUBTITLE_SELECTORS);
   }
 
   function processNode(node: Node): void {
-    if (node.nodeType !== Node.ELEMENT_NODE) return;
-    const el = node as HTMLElement;
-    if (matchesSubtitle(el)) void translateNode(el);
-    el.querySelectorAll?.(SUBTITLE_SELECTORS).forEach(
-      (child) => void translateNode(child as HTMLElement),
-    );
+    if (!(node instanceof Element)) return;
+    if (matchesSubtitle(node)) void translateNode(node);
+    node.querySelectorAll(SUBTITLE_SELECTORS).forEach((child) => {
+      if (child instanceof HTMLElement) void translateNode(child);
+    });
   }
 
   return {

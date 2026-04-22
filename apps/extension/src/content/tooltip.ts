@@ -4,7 +4,7 @@
  */
 import $ from "jquery";
 
-let $tooltip: JQuery<HTMLElement> | null = null;
+let $tooltip: JQuery | null = null;
 let timer: ReturnType<typeof setTimeout> | null = null;
 
 export function showTooltip(text: string, isError = false): void {

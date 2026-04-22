@@ -9,6 +9,11 @@ on:
 permissions:
   contents: read
 
+env:
+  # Opt javascript-based actions (checkout, setup-node, cache, upload-artifact,
+  # pnpm/action-setup) into Node.js 24 instead of the deprecated Node.js 20.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   build:
     name: Build extension
@@ -28,7 +33,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
@@ -37,7 +42,7 @@ jobs:
       - name: Cache turborepo
         uses: actions/cache@v4
         with:
-          path: node_modules/.cache/turbo
+          path: .turbo/cache
           key: ${{ runner.os }}-turbo-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-turbo-

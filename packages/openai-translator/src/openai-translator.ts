@@ -17,6 +17,24 @@ function trimTrailingSlash(url: string): string {
 }
 
 /**
+ * Read and parse a response body as JSON without triggering unsafe `any`
+ * assertions on `Response.json()`. Returns `null` when the body is missing
+ * or cannot be parsed as JSON.
+ */
+async function readResponseJson(response: Response): Promise<unknown> {
+  try {
+    const raw: unknown = await response.json();
+    return raw;
+  } catch {
+    return null;
+  }
+}
+
+function isOpenAIResponse(value: unknown): value is OpenAIResponse {
+  return typeof value === "object" && value !== null;
+}
+
+/**
  * LLM-based translation via the OpenAI Chat Completions API.
  *
  * Configuration is sourced from {@link Settings}:
@@ -59,7 +77,8 @@ export class OpenAITranslator extends Translator {
     });
 
     if (!response.ok) {
-      const err = (await response.json().catch(() => ({}))) as OpenAIResponse;
+      const raw = await readResponseJson(response);
+      const err: OpenAIResponse = isOpenAIResponse(raw) ? raw : {};
       throw new TranslationError(
         "openai",
         `Request failed (${response.status}): ${err?.error?.message ?? response.statusText}`,
@@ -67,7 +86,8 @@ export class OpenAITranslator extends Translator {
       );
     }
 
-    const data = (await response.json()) as OpenAIResponse;
+    const raw = await readResponseJson(response);
+    const data: OpenAIResponse = isOpenAIResponse(raw) ? raw : {};
     return data.choices?.[0]?.message?.content?.trim() ?? "";
   }
 }

@@ -30,13 +30,15 @@ const STATIC_COPIES = [
 
 async function copyStatic() {
   await mkdir(DIST, { recursive: true });
-  for (const { from, to } of STATIC_COPIES) {
-    if (!existsSync(from)) {
-      throw new Error(`Missing static file: ${from}`);
-    }
-    await mkdir(dirname(to), { recursive: true });
-    await cp(from, to);
-  }
+  await Promise.all(
+    STATIC_COPIES.map(async ({ from, to }) => {
+      if (!existsSync(from)) {
+        throw new Error(`Missing static file: ${from}`);
+      }
+      await mkdir(dirname(to), { recursive: true });
+      await cp(from, to);
+    }),
+  );
   if (existsSync(PUBLIC_DIR)) {
     await cp(PUBLIC_DIR, DIST, { recursive: true });
   }
@@ -92,10 +94,15 @@ async function sanityCheck() {
 }
 
 async function listDist(dir, prefix = "") {
-  const entries = await readdir(dir, { withFileTypes: true });
-  for (const entry of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+  const entries = (await readdir(dir, { withFileTypes: true })).toSorted((a, b) =>
+    a.name.localeCompare(b.name),
+  );
+  for (const entry of entries) {
     if (entry.isDirectory()) {
       console.log(`${prefix}${entry.name}/`);
+      // Recurse sequentially so the tree is printed in stable, human-readable
+      // order rather than interleaved by concurrent reads.
+      // oxlint-disable-next-line no-await-in-loop
       await listDist(join(dir, entry.name), `${prefix}  `);
     } else {
       console.log(`${prefix}${entry.name}`);

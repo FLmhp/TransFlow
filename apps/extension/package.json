@@ -23,7 +23,7 @@
     "@rollup/plugin-babel": "^7.0.0",
     "@types/chrome": "^0.1.40",
     "@types/jquery": "^4.0.0",
-    "@types/node": "^20.17.0",
+    "@types/node": "^24.0.0",
     "archiver": "^7.0.1",
     "babel-preset-solid": "^1.9.12",
     "tsdown": "^0.21.9",

@@ -49,7 +49,7 @@ export function createWebpageModule(settings: Settings): WebpageModule {
         const text = (this.innerText ?? "").trim();
         return text.length > 3;
       })
-      .toArray() as HTMLElement[];
+      .toArray();
   }
 
   async function translateOne(el: HTMLElement): Promise<void> {
@@ -74,6 +74,9 @@ export function createWebpageModule(settings: Settings): WebpageModule {
     const CHUNK = 5;
     for (let i = 0; i < elements.length; i += CHUNK) {
       if (!active) break;
+      // Chunks are processed sequentially to throttle concurrent translation
+      // requests; within a chunk they run in parallel via Promise.all.
+      // oxlint-disable-next-line no-await-in-loop
       await Promise.all(elements.slice(i, i + CHUNK).map((el) => translateOne(el)));
     }
   }
@@ -84,8 +87,8 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       const pending: HTMLElement[] = [];
       for (const mutation of mutations) {
         for (const node of Array.from(mutation.addedNodes)) {
-          if (node.nodeType !== Node.ELEMENT_NODE) continue;
-          pending.push(...findCandidates(node as ParentNode));
+          if (!(node instanceof Element)) continue;
+          pending.push(...findCandidates(node));
         }
       }
       if (pending.length > 0) void translateBatch(pending);

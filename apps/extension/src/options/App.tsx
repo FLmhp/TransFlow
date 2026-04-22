@@ -160,11 +160,12 @@ export const App: Component = () => {
                   <label>Translation position</label>
                   <select
                     value={settings().translationPosition}
-                    onChange={(e) =>
-                      void update({
-                        translationPosition: e.currentTarget.value as "below" | "above",
-                      })
-                    }
+                    onChange={(e) => {
+                      const value = e.currentTarget.value;
+                      if (value === "above" || value === "below") {
+                        void update({ translationPosition: value });
+                      }
+                    }}
                   >
                     <option value="below">Below original</option>
                     <option value="above">Above original</option>
@@ -183,9 +184,12 @@ export const App: Component = () => {
                   <label>Select engine</label>
                   <select
                     value={settings().engine}
-                    onChange={(e) =>
-                      void update({ engine: e.currentTarget.value as TranslationEngine })
-                    }
+                    onChange={(e) => {
+                      const value = e.currentTarget.value;
+                      if (value === "google" || value === "openai") {
+                        void update({ engine: value satisfies TranslationEngine });
+                      }
+                    }}
                   >
                     <For each={ENGINE_DESCRIPTORS}>
                       {(engine) => (

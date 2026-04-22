@@ -38,11 +38,11 @@ export function createPdfModule(): PdfModule {
     $spans.each(function () {
       const top = Math.round(parseFloat(this.style.top || "0") / 5) * 5;
       const arr = lines.get(top) ?? [];
-      arr.push(this as HTMLSpanElement);
+      arr.push(this);
       lines.set(top, arr);
     });
 
-    const sorted = [...lines.entries()].sort((a, b) => a[0] - b[0]);
+    const sorted = [...lines.entries()].toSorted((a, b) => a[0] - b[0]);
     for (const [, spans] of sorted) {
       if (!active) break;
       const text = spans
@@ -52,11 +52,14 @@ export function createPdfModule(): PdfModule {
       if (text.length < 3) continue;
       spans.forEach((s) => s.setAttribute(ATTR_TRANSLATED, "1"));
 
+      // PDF lines are translated sequentially to preserve reading order in the
+      // output and to throttle the translation API.
+      // oxlint-disable-next-line no-await-in-loop
       const translated = await requestTranslation(text);
       if (!translated || !active) continue;
 
       const $el = $("<span/>", { class: CLASS_PDF_TRANSLATION }).text(translated);
-      $(spans[spans.length - 1] as HTMLElement).after($el);
+      $(spans[spans.length - 1]).after($el);
     }
   }
 
@@ -65,12 +68,13 @@ export function createPdfModule(): PdfModule {
       if (!active) return;
       for (const mutation of mutations) {
         for (const node of Array.from(mutation.addedNodes)) {
-          if (node.nodeType !== Node.ELEMENT_NODE) continue;
-          const el = node as HTMLElement;
-          const layers = el.classList?.contains("textLayer")
-            ? [el]
-            : Array.from(el.querySelectorAll?.(".textLayer") ?? []);
-          layers.forEach((layer) => void translateLayer(layer as HTMLElement));
+          if (!(node instanceof HTMLElement)) continue;
+          const layers = node.classList.contains("textLayer")
+            ? [node]
+            : Array.from(node.querySelectorAll(".textLayer"));
+          layers.forEach((layer) => {
+            if (layer instanceof HTMLElement) void translateLayer(layer);
+          });
         }
       }
     });
@@ -81,8 +85,11 @@ export function createPdfModule(): PdfModule {
     async start() {
       if (active) return;
       active = true;
-      const layers = $(".textLayer").toArray() as HTMLElement[];
+      const layers = $(".textLayer").toArray();
       for (const layer of layers) {
+        // Initial pages are translated sequentially to match on-screen reading
+        // order; parallelism here would scramble the output.
+        // oxlint-disable-next-line no-await-in-loop
         await translateLayer(layer);
       }
       observe();
