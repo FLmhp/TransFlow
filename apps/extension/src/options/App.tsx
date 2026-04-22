@@ -175,8 +175,8 @@ export const App: Component = () => {
               <div class="card">
                 <h3>Translation Cache</h3>
                 <p class="hint">
-                  Cache identical translations in memory to save API calls and latency. The
-                  cache lives only for the current browser session.
+                  Cache identical translations in memory to save API calls and latency. The cache
+                  lives only for the current browser session.
                 </p>
                 <div class="form-row toggle-row">
                   <span>Enable translation cache</span>

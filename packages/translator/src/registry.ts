@@ -55,7 +55,7 @@ export class TranslatorRegistry {
     const text = request.text?.trim() ?? "";
     if (!text) return "";
 
-    const cacheEnabled = this.cache && request.settings.cacheEnabled !== false;
+    const cacheEnabled = this.cache && request.settings.cacheEnabled;
     if (cacheEnabled && this.cache) {
       const hit = this.cache.get({
         engine,

@@ -24,10 +24,7 @@ const translationCache = new TranslationCache({
   maxEntries: DEFAULT_SETTINGS.cacheMaxEntries,
   ttlMs: DEFAULT_SETTINGS.cacheTtlMinutes * 60_000,
 });
-const translators = new TranslatorRegistry(
-  [googleTranslator, openaiTranslator],
-  translationCache,
-);
+const translators = new TranslatorRegistry([googleTranslator, openaiTranslator], translationCache);
 const translate = (request: Parameters<typeof translators.translate>[0]) => {
   // Apply the user's current cache sizing/TTL before each request so edits
   // in the options page take effect immediately (shrinking `maxEntries`
