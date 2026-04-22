@@ -12,7 +12,7 @@ export function showTooltip(text: string, isError = false): void {
 
   const $el = $("<div/>", { class: "transflow-tooltip" });
   $("<span/>", { class: "transflow-tooltip-label" })
-    .text(isError ? "⚠ TransFlow Error" : "🌐 TransFlow")
+    .text(isError ? "⚠ TransFlow 错误" : "🌐 TransFlow")
     .appendTo($el);
   $el.append(document.createTextNode(text));
 

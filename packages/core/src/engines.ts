@@ -18,16 +18,16 @@ export interface EngineDescriptor {
 export const ENGINE_DESCRIPTORS: readonly EngineDescriptor[] = [
   {
     id: "google",
-    label: "Google",
+    label: "谷歌翻译",
     icon: "🔍",
     requiresApiKey: false,
-    description: "Free Google Translate web API. No key needed. Rate limits may apply.",
+    description: "免费的谷歌翻译网页接口，无需密钥，可能存在速率限制。",
   },
   {
     id: "openai",
     label: "OpenAI",
     icon: "🤖",
     requiresApiKey: true,
-    description: "LLM-based translation via the OpenAI (or compatible) Chat Completions API.",
+    description: "通过 OpenAI（或兼容服务）的 Chat Completions API 进行大模型翻译。",
   },
 ];

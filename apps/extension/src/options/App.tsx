@@ -16,10 +16,10 @@ import {
 type Section = "general" | "engines" | "appearance" | "about";
 
 const OPENAI_MODELS: readonly { value: string; label: string }[] = [
-  { value: "gpt-4o-mini", label: "gpt-4o-mini (recommended, fast & cheap)" },
-  { value: "gpt-4o", label: "gpt-4o (best quality)" },
+  { value: "gpt-4o-mini", label: "gpt-4o-mini（推荐，快速且经济）" },
+  { value: "gpt-4o", label: "gpt-4o（质量最佳）" },
   { value: "gpt-4-turbo", label: "gpt-4-turbo" },
-  { value: "gpt-3.5-turbo", label: "gpt-3.5-turbo (fastest)" },
+  { value: "gpt-3.5-turbo", label: "gpt-3.5-turbo（最快）" },
 ];
 
 export const App: Component = () => {
@@ -43,13 +43,13 @@ export const App: Component = () => {
   };
 
   const onReset = async () => {
-    if (!confirm("Reset all settings to defaults?")) return;
+    if (!confirm("确定要将所有设置恢复为默认值吗？")) return;
     await updateSettings({ ...DEFAULT_SETTINGS });
     showBanner();
   };
 
   return (
-    <Show when={loaded()} fallback={<div class="loading">Loading…</div>}>
+    <Show when={loaded()} fallback={<div class="loading">加载中…</div>}>
       <div class="page">
         <nav class="sidebar">
           <div class="sidebar-logo">
@@ -60,10 +60,10 @@ export const App: Component = () => {
             <For
               each={
                 [
-                  { id: "general", label: "⚙ General" },
-                  { id: "engines", label: "🔧 Engines" },
-                  { id: "appearance", label: "🎨 Appearance" },
-                  { id: "about", label: "ℹ About" },
+                  { id: "general", label: "⚙ 常规" },
+                  { id: "engines", label: "🔧 引擎" },
+                  { id: "appearance", label: "🎨 外观" },
+                  { id: "about", label: "ℹ 关于" },
                 ] as const
               }
             >
@@ -87,17 +87,17 @@ export const App: Component = () => {
 
         <main class="content">
           <Show when={bannerVisible()}>
-            <div class="save-banner">✓ Settings saved</div>
+            <div class="save-banner">✓ 设置已保存</div>
           </Show>
 
           <Show when={active() === "general"}>
             <section class="settings-section">
-              <h2>General Settings</h2>
+              <h2>常规设置</h2>
 
               <div class="card">
-                <h3>Languages</h3>
+                <h3>语言</h3>
                 <div class="form-row">
-                  <label>Source language</label>
+                  <label>源语言</label>
                   <select
                     value={settings().sourceLang}
                     onChange={(e) => void update({ sourceLang: e.currentTarget.value })}
@@ -108,7 +108,7 @@ export const App: Component = () => {
                   </select>
                 </div>
                 <div class="form-row">
-                  <label>Target language</label>
+                  <label>目标语言</label>
                   <select
                     value={settings().targetLang}
                     onChange={(e) => void update({ targetLang: e.currentTarget.value })}
@@ -121,9 +121,9 @@ export const App: Component = () => {
               </div>
 
               <div class="card">
-                <h3>Features</h3>
+                <h3>功能</h3>
                 <div class="form-row toggle-row">
-                  <span>Enable PDF translation</span>
+                  <span>启用 PDF 翻译</span>
                   <label class="toggle-switch">
                     <input
                       type="checkbox"
@@ -134,7 +134,7 @@ export const App: Component = () => {
                   </label>
                 </div>
                 <div class="form-row toggle-row">
-                  <span>Enable video subtitle translation</span>
+                  <span>启用视频字幕翻译</span>
                   <label class="toggle-switch">
                     <input
                       type="checkbox"
@@ -145,7 +145,7 @@ export const App: Component = () => {
                   </label>
                 </div>
                 <div class="form-row toggle-row">
-                  <span>Show original text alongside translation</span>
+                  <span>同时显示原文与译文</span>
                   <label class="toggle-switch">
                     <input
                       type="checkbox"
@@ -156,7 +156,7 @@ export const App: Component = () => {
                   </label>
                 </div>
                 <div class="form-row">
-                  <label>Translation position</label>
+                  <label>译文位置</label>
                   <select
                     value={settings().translationPosition}
                     onChange={(e) => {
@@ -166,20 +166,19 @@ export const App: Component = () => {
                       }
                     }}
                   >
-                    <option value="below">Below original</option>
-                    <option value="above">Above original</option>
+                    <option value="below">原文下方</option>
+                    <option value="above">原文上方</option>
                   </select>
                 </div>
               </div>
 
               <div class="card">
-                <h3>Translation Cache</h3>
+                <h3>翻译缓存</h3>
                 <p class="hint">
-                  Cache identical translations in memory to save API calls and latency. The cache
-                  lives only for the current browser session.
+                  在内存中缓存相同的翻译结果，以减少接口调用并降低延迟。缓存仅在当前浏览器会话内有效。
                 </p>
                 <div class="form-row toggle-row">
-                  <span>Enable translation cache</span>
+                  <span>启用翻译缓存</span>
                   <label class="toggle-switch">
                     <input
                       type="checkbox"
@@ -190,7 +189,7 @@ export const App: Component = () => {
                   </label>
                 </div>
                 <div class="form-row">
-                  <label>Entry TTL (minutes)</label>
+                  <label>条目有效期（分钟）</label>
                   <input
                     type="number"
                     min="1"
@@ -204,7 +203,7 @@ export const App: Component = () => {
                   />
                 </div>
                 <div class="form-row">
-                  <label>Max entries (LRU)</label>
+                  <label>最大条目数（LRU）</label>
                   <input
                     type="number"
                     min="1"
@@ -223,11 +222,11 @@ export const App: Component = () => {
 
           <Show when={active() === "engines"}>
             <section class="settings-section">
-              <h2>Translation Engines</h2>
+              <h2>翻译引擎</h2>
               <div class="card">
-                <h3>Active Engine</h3>
+                <h3>当前引擎</h3>
                 <div class="form-row">
-                  <label>Select engine</label>
+                  <label>选择引擎</label>
                   <select
                     value={settings().engine}
                     onChange={(e) => {
@@ -250,9 +249,9 @@ export const App: Component = () => {
 
               <Show when={settings().engine === "google"}>
                 <div class="card">
-                  <h3>🔍 Google Translate</h3>
+                  <h3>🔍 谷歌翻译</h3>
                   <p class="hint">
-                    Free Google Translate web API. No API key needed. Rate limits may apply.
+                    免费的谷歌翻译网页接口，无需 API 密钥，可能存在速率限制。
                   </p>
                 </div>
               </Show>
@@ -261,7 +260,7 @@ export const App: Component = () => {
                 <div class="card">
                   <h3>🤖 OpenAI GPT</h3>
                   <div class="form-row">
-                    <label>OpenAI API Key</label>
+                    <label>OpenAI API 密钥</label>
                     <input
                       type="password"
                       placeholder="sk-..."
@@ -279,7 +278,7 @@ export const App: Component = () => {
                     />
                   </div>
                   <div class="form-row">
-                    <label>Model</label>
+                    <label>模型</label>
                     <select
                       value={settings().openaiModel}
                       onChange={(e) => void update({ openaiModel: e.currentTarget.value })}
@@ -290,11 +289,11 @@ export const App: Component = () => {
                     </select>
                   </div>
                   <p class="hint">
-                    Get an API key at{" "}
+                    可在{" "}
                     <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
                       platform.openai.com
                     </a>
-                    . Override the Base URL to use an OpenAI-compatible endpoint.
+                    {" "}获取 API 密钥。如需使用 OpenAI 兼容的服务，可自定义 Base URL。
                   </p>
                 </div>
               </Show>
@@ -303,11 +302,11 @@ export const App: Component = () => {
 
           <Show when={active() === "appearance"}>
             <section class="settings-section">
-              <h2>Appearance</h2>
+              <h2>外观</h2>
               <div class="card">
-                <h3>Translation Style</h3>
+                <h3>译文样式</h3>
                 <div class="form-row">
-                  <label>Translation text color</label>
+                  <label>译文文字颜色</label>
                   <input
                     type="color"
                     value={settings().translationColor}
@@ -315,7 +314,7 @@ export const App: Component = () => {
                   />
                 </div>
                 <div class="form-row">
-                  <label>Font size relative to page (%)</label>
+                  <label>相对页面的字号（%）</label>
                   <input
                     type="range"
                     min="70"
@@ -330,7 +329,7 @@ export const App: Component = () => {
                 </div>
               </div>
               <div class="card">
-                <h3>Preview</h3>
+                <h3>预览</h3>
                 <p class="preview-original">The quick brown fox jumps over the lazy dog.</p>
                 <p
                   class="preview-translation"
@@ -348,17 +347,17 @@ export const App: Component = () => {
 
           <Show when={active() === "about"}>
             <section class="settings-section">
-              <h2>About TransFlow</h2>
+              <h2>关于 TransFlow</h2>
               <div class="card">
                 <h3>TransFlow v1.0.0</h3>
-                <p>An immersive bilingual translation Chrome extension supporting:</p>
+                <p>一款沉浸式双语翻译 Chrome 扩展，支持以下功能：</p>
                 <ul class="feature-list">
-                  <li>🌐 Real-time bilingual webpage translation</li>
-                  <li>📄 PDF document translation (PDF.js text layer)</li>
-                  <li>🎬 Video subtitle translation (YouTube, Netflix, and more)</li>
-                  <li>🤖 Machine translation: Google Translate</li>
-                  <li>✨ LLM translation: OpenAI GPT (and OpenAI-compatible endpoints)</li>
-                  <li>🖱 Right-click context menu to translate selected text</li>
+                  <li>🌐 实时双语网页翻译</li>
+                  <li>📄 PDF 文档翻译（PDF.js 文本层）</li>
+                  <li>🎬 视频字幕翻译（YouTube、Netflix 等）</li>
+                  <li>🤖 机器翻译：谷歌翻译</li>
+                  <li>✨ 大模型翻译：OpenAI GPT（及兼容服务）</li>
+                  <li>🖱 右键菜单翻译所选文本</li>
                 </ul>
               </div>
             </section>
@@ -366,10 +365,10 @@ export const App: Component = () => {
 
           <div class="save-row">
             <button class="btn-primary" onClick={onSave}>
-              Save &amp; Apply
+              保存并应用
             </button>
             <button class="btn-secondary" onClick={onReset}>
-              Reset to Defaults
+              恢复默认设置
             </button>
           </div>
         </main>

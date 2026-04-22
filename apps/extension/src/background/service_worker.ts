@@ -52,12 +52,12 @@ function installContextMenus(): void {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
       id: "translateSelection",
-      title: "Translate selection with TransFlow",
+      title: "使用 TransFlow 翻译所选内容",
       contexts: ["selection"],
     });
     chrome.contextMenus.create({
       id: "toggleTranslation",
-      title: "Toggle page translation",
+      title: "切换整页翻译",
       contexts: ["page"],
     });
   });

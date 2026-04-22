@@ -20,27 +20,27 @@ export const App: Component = () => {
   };
 
   return (
-    <Show when={loaded()} fallback={<div class="popup-loading">Loading…</div>}>
+    <Show when={loaded()} fallback={<div class="popup-loading">加载中…</div>}>
       <div class="popup-container">
         <header class="popup-header">
           <div class="logo">
             <span class="logo-icon">🌐</span>
             <span class="logo-text">TransFlow</span>
           </div>
-          <label class="toggle-switch" title="Enable/Disable translation">
+          <label class="toggle-switch" title="启用/停用翻译">
             <input type="checkbox" checked={settings().enabled} onChange={toggleEnabled} />
             <span class="slider" />
           </label>
         </header>
 
         <div class={`status-bar ${settings().enabled ? "active" : ""}`}>
-          <span>{settings().enabled ? "✓ Translation active" : "Translation disabled"}</span>
+          <span>{settings().enabled ? "✓ 翻译已启用" : "翻译已停用"}</span>
         </div>
 
         <section class="section">
           <div class="row">
             <div class="field">
-              <label>From</label>
+              <label>源语言</label>
               <select
                 value={settings().sourceLang}
                 onChange={(e) => updateSettings({ sourceLang: e.currentTarget.value })}
@@ -50,11 +50,11 @@ export const App: Component = () => {
                 </For>
               </select>
             </div>
-            <span class="swap-arrow" title="Swap languages" onClick={swapLangs}>
+            <span class="swap-arrow" title="交换语言" onClick={swapLangs}>
               ⇄
             </span>
             <div class="field">
-              <label>To</label>
+              <label>目标语言</label>
               <select
                 value={settings().targetLang}
                 onChange={(e) => updateSettings({ targetLang: e.currentTarget.value })}
@@ -68,7 +68,7 @@ export const App: Component = () => {
         </section>
 
         <section class="section">
-          <label class="section-label">Translation Engine</label>
+          <label class="section-label">翻译引擎</label>
           <div class="engine-grid">
             <For each={ENGINE_DESCRIPTORS}>
               {(engine) => (
@@ -86,7 +86,7 @@ export const App: Component = () => {
         </section>
 
         <section class="section">
-          <label class="section-label">Features</label>
+          <label class="section-label">功能</label>
           <div class="feature-list">
             <label class="feature-item">
               <input
@@ -94,7 +94,7 @@ export const App: Component = () => {
                 checked={settings().pdfEnabled}
                 onChange={(e) => updateSettings({ pdfEnabled: e.currentTarget.checked })}
               />
-              <span>📄 PDF translation</span>
+              <span>📄 PDF 翻译</span>
             </label>
             <label class="feature-item">
               <input
@@ -102,14 +102,14 @@ export const App: Component = () => {
                 checked={settings().subtitleEnabled}
                 onChange={(e) => updateSettings({ subtitleEnabled: e.currentTarget.checked })}
               />
-              <span>🎬 Video subtitle translation</span>
+              <span>🎬 视频字幕翻译</span>
             </label>
           </div>
         </section>
 
         <div class="popup-actions">
           <button class="btn-secondary" onClick={() => chrome.runtime.openOptionsPage()}>
-            ⚙ Settings
+            ⚙ 设置
           </button>
           <button
             class="btn-primary"
@@ -118,7 +118,7 @@ export const App: Component = () => {
               window.close();
             }}
           >
-            Translate Page
+            翻译本页
           </button>
         </div>
       </div>
