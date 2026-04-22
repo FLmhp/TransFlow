@@ -250,9 +250,7 @@ export const App: Component = () => {
               <Show when={settings().engine === "google"}>
                 <div class="card">
                   <h3>🔍 谷歌翻译</h3>
-                  <p class="hint">
-                    免费的谷歌翻译网页接口，无需 API 密钥，可能存在速率限制。
-                  </p>
+                  <p class="hint">免费的谷歌翻译网页接口，无需 API 密钥，可能存在速率限制。</p>
                 </div>
               </Show>
 
@@ -292,8 +290,8 @@ export const App: Component = () => {
                     可在{" "}
                     <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
                       platform.openai.com
-                    </a>
-                    {" "}获取 API 密钥。如需使用 OpenAI 兼容的服务，可自定义 Base URL。
+                    </a>{" "}
+                    获取 API 密钥。如需使用 OpenAI 兼容的服务，可自定义 Base URL。
                   </p>
                 </div>
               </Show>
