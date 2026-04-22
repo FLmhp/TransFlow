@@ -5,7 +5,6 @@ import {
   SOURCE_LANGUAGES,
   TARGET_LANGUAGES,
   type Settings,
-  type TranslationEngine,
 } from "@transflow/core";
 import {
   broadcastSettingsToAllTabs,
@@ -187,7 +186,7 @@ export const App: Component = () => {
                     onChange={(e) => {
                       const value = e.currentTarget.value;
                       if (value === "google" || value === "openai") {
-                        void update({ engine: value satisfies TranslationEngine });
+                        void update({ engine: value });
                       }
                     }}
                   >
