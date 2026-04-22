@@ -21,6 +21,10 @@
     },
     "clean": {
       "cache": false
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "tsconfig.json", "package.json"]
     }
   }
 }

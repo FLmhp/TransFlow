@@ -6,11 +6,14 @@
   "scripts": {
     "build": "tsdown && node scripts/package.mjs",
     "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
     "@transflow/core": "workspace:*",
-    "@transflow/translators": "workspace:*",
+    "@transflow/google-translator": "workspace:*",
+    "@transflow/openai-translator": "workspace:*",
+    "@transflow/translator": "workspace:*",
     "jquery": "^4.0.0",
     "solid-js": "^1.9.12"
   },

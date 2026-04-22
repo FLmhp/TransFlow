@@ -12,13 +12,12 @@ export interface Settings {
   sourceLang: string;
   targetLang: string;
 
-  // Engine credentials
-  deeplApiKey: string;
-  deeplIsPro: boolean;
+  // OpenAI engine credentials / configuration.
+  // `openaiBaseUrl` is the `OPENAI_BASE_URL` value — override to use an
+  // OpenAI-compatible endpoint. `openaiApiKey` is the `OPENAI_API_KEY`.
   openaiApiKey: string;
+  openaiBaseUrl: string;
   openaiModel: string;
-  geminiApiKey: string;
-  geminiModel: string;
 
   // UX
   showOriginal: boolean;
@@ -37,12 +36,9 @@ export const DEFAULT_SETTINGS: Settings = {
   sourceLang: "auto",
   targetLang: "zh-CN",
 
-  deeplApiKey: "",
-  deeplIsPro: false,
   openaiApiKey: "",
+  openaiBaseUrl: "https://api.openai.com/v1",
   openaiModel: "gpt-4o-mini",
-  geminiApiKey: "",
-  geminiModel: "gemini-1.5-flash",
 
   showOriginal: true,
   translationPosition: "below",

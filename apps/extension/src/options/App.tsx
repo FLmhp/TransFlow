@@ -23,12 +23,6 @@ const OPENAI_MODELS: readonly { value: string; label: string }[] = [
   { value: "gpt-3.5-turbo", label: "gpt-3.5-turbo (fastest)" },
 ];
 
-const GEMINI_MODELS: readonly { value: string; label: string }[] = [
-  { value: "gemini-1.5-flash", label: "gemini-1.5-flash (fast)" },
-  { value: "gemini-1.5-pro", label: "gemini-1.5-pro (best quality)" },
-  { value: "gemini-2.0-flash", label: "gemini-2.0-flash" },
-];
-
 export const App: Component = () => {
   const [active, setActive] = createSignal<Section>("general");
   const [bannerVisible, setBannerVisible] = createSignal(false);
@@ -213,38 +207,6 @@ export const App: Component = () => {
                 </div>
               </Show>
 
-              <Show when={settings().engine === "deepl"}>
-                <div class="card">
-                  <h3>📘 DeepL</h3>
-                  <div class="form-row">
-                    <label>DeepL API Key</label>
-                    <input
-                      type="password"
-                      placeholder="Enter your DeepL API key"
-                      value={settings().deeplApiKey}
-                      onInput={(e) => void update({ deeplApiKey: e.currentTarget.value })}
-                    />
-                  </div>
-                  <div class="form-row toggle-row">
-                    <span>Use DeepL Pro endpoint</span>
-                    <label class="toggle-switch">
-                      <input
-                        type="checkbox"
-                        checked={settings().deeplIsPro}
-                        onChange={(e) => void update({ deeplIsPro: e.currentTarget.checked })}
-                      />
-                      <span class="slider" />
-                    </label>
-                  </div>
-                  <p class="hint">
-                    Get a free API key at{" "}
-                    <a href="https://www.deepl.com/pro-api" target="_blank" rel="noreferrer">
-                      deepl.com/pro-api
-                    </a>
-                  </p>
-                </div>
-              </Show>
-
               <Show when={settings().engine === "openai"}>
                 <div class="card">
                   <h3>🤖 OpenAI GPT</h3>
@@ -255,6 +217,15 @@ export const App: Component = () => {
                       placeholder="sk-..."
                       value={settings().openaiApiKey}
                       onInput={(e) => void update({ openaiApiKey: e.currentTarget.value })}
+                    />
+                  </div>
+                  <div class="form-row">
+                    <label>Base URL</label>
+                    <input
+                      type="text"
+                      placeholder="https://api.openai.com/v1"
+                      value={settings().openaiBaseUrl}
+                      onInput={(e) => void update({ openaiBaseUrl: e.currentTarget.value })}
                     />
                   </div>
                   <div class="form-row">
@@ -273,42 +244,7 @@ export const App: Component = () => {
                     <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
                       platform.openai.com
                     </a>
-                  </p>
-                </div>
-              </Show>
-
-              <Show when={settings().engine === "gemini"}>
-                <div class="card">
-                  <h3>✨ Google Gemini</h3>
-                  <div class="form-row">
-                    <label>Gemini API Key</label>
-                    <input
-                      type="password"
-                      placeholder="Enter your Gemini API key"
-                      value={settings().geminiApiKey}
-                      onInput={(e) => void update({ geminiApiKey: e.currentTarget.value })}
-                    />
-                  </div>
-                  <div class="form-row">
-                    <label>Model</label>
-                    <select
-                      value={settings().geminiModel}
-                      onChange={(e) => void update({ geminiModel: e.currentTarget.value })}
-                    >
-                      <For each={GEMINI_MODELS}>
-                        {(m) => <option value={m.value}>{m.label}</option>}
-                      </For>
-                    </select>
-                  </div>
-                  <p class="hint">
-                    Get an API key at{" "}
-                    <a
-                      href="https://aistudio.google.com/app/apikey"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Google AI Studio
-                    </a>
+                    . Override the Base URL to use an OpenAI-compatible endpoint.
                   </p>
                 </div>
               </Show>
@@ -370,8 +306,8 @@ export const App: Component = () => {
                   <li>🌐 Real-time bilingual webpage translation</li>
                   <li>📄 PDF document translation (PDF.js text layer)</li>
                   <li>🎬 Video subtitle translation (YouTube, Netflix, and more)</li>
-                  <li>🤖 Machine translation: Google Translate, DeepL</li>
-                  <li>✨ LLM translation: OpenAI GPT, Google Gemini</li>
+                  <li>🤖 Machine translation: Google Translate</li>
+                  <li>✨ LLM translation: OpenAI GPT (and OpenAI-compatible endpoints)</li>
                   <li>🖱 Right-click context menu to translate selected text</li>
                 </ul>
               </div>

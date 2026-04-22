@@ -3,7 +3,7 @@
  *
  * Responsibilities:
  *  - Own the single source of truth for settings (via `chrome.storage.sync`).
- *  - Dispatch translation requests to `@transflow/translators`.
+ *  - Dispatch translation requests to the registered translator engines.
  *  - Register context-menus and route their actions to the content script.
  *  - Route messages between popup/options and active tabs.
  */
@@ -14,7 +14,15 @@ import {
   type Settings,
   type TranslateResponse,
 } from "@transflow/core";
-import { translate } from "@transflow/translators";
+import { TranslatorRegistry } from "@transflow/translator";
+import { googleTranslator } from "@transflow/google-translator";
+import { openaiTranslator } from "@transflow/openai-translator";
+
+// Single shared registry. To add a new engine: implement the abstract
+// `Translator` class in its own package and register it here.
+const translators = new TranslatorRegistry([googleTranslator, openaiTranslator]);
+const translate = (request: Parameters<typeof translators.translate>[0]) =>
+  translators.translate(request);
 
 // ─── Install / startup ────────────────────────────────────────────────────────
 

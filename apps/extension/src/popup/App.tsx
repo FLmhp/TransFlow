@@ -16,7 +16,7 @@ export const App: Component = () => {
   const swapLangs = () => {
     const { sourceLang, targetLang } = settings();
     if (sourceLang === "auto") return;
-    updateSettings({ sourceLang: targetLang, targetLang: sourceLang });
+    void updateSettings({ sourceLang: targetLang, targetLang: sourceLang });
   };
 
   return (

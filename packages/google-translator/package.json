@@ -1,5 +1,5 @@
 {
-  "name": "@transflow/translators",
+  "name": "@transflow/google-translator",
   "version": "1.0.0",
   "private": true,
   "files": [
@@ -18,10 +18,12 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist .turbo"
   },
   "dependencies": {
-    "@transflow/core": "workspace:*"
+    "@transflow/core": "workspace:*",
+    "@transflow/translator": "workspace:*"
   },
   "devDependencies": {
     "tsdown": "^0.21.9",

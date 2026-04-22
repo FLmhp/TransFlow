@@ -1,8 +1,14 @@
-import { TranslationError, type Translator } from "./types.js";
+import type { TranslationEngine } from "@transflow/core";
+import { Translator, TranslationError, type TranslationRequest } from "@transflow/translator";
 
-export const googleTranslator: Translator = {
-  id: "google",
-  async translate({ text, sourceLang, targetLang }) {
+/**
+ * Google machine translation via the free `translate.googleapis.com`
+ * endpoint. No API key is required; rate limits may apply.
+ */
+export class GoogleTranslator extends Translator {
+  readonly id: TranslationEngine = "google";
+
+  async translate({ text, sourceLang, targetLang }: TranslationRequest): Promise<string> {
     const sl = sourceLang === "auto" ? "auto" : sourceLang;
     const url =
       `https://translate.googleapis.com/translate_a/single` +
@@ -25,5 +31,8 @@ export const googleTranslator: Translator = {
       )
       .map((item) => item[0])
       .join("");
-  },
-};
+  }
+}
+
+/** Shared singleton for convenience. */
+export const googleTranslator = new GoogleTranslator();

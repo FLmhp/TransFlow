@@ -1,5 +1,5 @@
 {
-  "name": "@transflow/core",
+  "name": "@transflow/openai-translator",
   "version": "1.0.0",
   "private": true,
   "files": [
@@ -20,6 +20,10 @@
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@transflow/core": "workspace:*",
+    "@transflow/translator": "workspace:*"
   },
   "devDependencies": {
     "tsdown": "^0.21.9",
