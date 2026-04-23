@@ -5,7 +5,6 @@ import {
   chromium,
   type BrowserContext,
   type Page,
-  type Worker,
   expect,
 } from "@playwright/test";
 import type { Settings } from "../../packages/core/src/settings.js";
@@ -104,7 +103,7 @@ export async function enableTranslation(
   overrides: Partial<Settings> = {},
 ): Promise<void> {
   let [worker] = context.serviceWorkers();
-  if (!worker) worker = (await context.waitForEvent("serviceworker")) as Worker;
+  if (!worker) worker = await context.waitForEvent("serviceworker");
   await worker.evaluate(async (extra: Partial<Settings>) => {
     // Wait until the background `onInstalled` handler has seeded defaults
     // into sync storage — detectable by the presence of a well-known key.
@@ -112,8 +111,10 @@ export async function enableTranslation(
     // while keeping failed runs from hanging indefinitely.
     for (let i = 0; i < 100; i++) {
       // @ts-expect-error — `chrome` is injected by the extension runtime.
+      // oxlint-disable-next-line no-await-in-loop -- polling requires sequential awaits
       const v = await chrome.storage.sync.get("engine");
       if (typeof v.engine === "string") break;
+      // oxlint-disable-next-line no-await-in-loop -- intentional sleep between polls
       await new Promise((r) => setTimeout(r, 50));
     }
     // @ts-expect-error — `chrome` is injected by the extension runtime.
