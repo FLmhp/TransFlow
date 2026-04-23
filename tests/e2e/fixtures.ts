@@ -1,12 +1,6 @@
 import path from "node:path";
 import url from "node:url";
-import {
-  test,
-  chromium,
-  type BrowserContext,
-  type Page,
-  expect,
-} from "@playwright/test";
+import { test, chromium, type BrowserContext, type Page, expect } from "@playwright/test";
 import type { Settings } from "../../packages/core/src/settings.js";
 
 /**
