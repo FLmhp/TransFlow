@@ -89,10 +89,12 @@ describe("webpage translation module", () => {
     mod.stop();
   });
 
-  it("preserves hyperlinks from the original block alongside the translation", async () => {
+  it("preserves hyperlinks inline within the translated sentence", async () => {
     installPlatform({
       runtime: makeBridge({
-        "Visit example for more information.": "访问示例了解更多信息。",
+        Visit: "访问",
+        example: "示例",
+        "for more information.": "了解更多信息。",
       }),
     });
 
@@ -105,17 +107,52 @@ describe("webpage translation module", () => {
 
     const translation = document.querySelector(".transflow-translation");
     expect(translation).not.toBeNull();
-    // The translated text is rendered.
-    expect(translation!.textContent).toContain("访问示例了解更多信息。");
+    // All three segments are translated and rendered in order.
+    expect(translation!.textContent).toContain("访问");
+    expect(translation!.textContent).toContain("示例");
+    expect(translation!.textContent).toContain("了解更多信息。");
 
-    // The preserved-links wrapper is appended with a clickable anchor that
-    // points at the original href and opens in a new tab.
+    // The hyperlink is kept inline as a real <a>, with the translated
+    // anchor text and the original href preserved.
     const link = translation!.querySelector<HTMLAnchorElement>(".transflow-translation-link");
     expect(link).not.toBeNull();
     expect(link!.href).toBe("https://example.com/docs");
     expect(link!.target).toBe("_blank");
     expect(link!.rel).toContain("noopener");
-    expect(link!.textContent).toBe("example");
+    expect(link!.textContent).toBe("示例");
+
+    // Block paragraphs render as block, not inline.
+    expect(translation!.classList.contains("transflow-translation-inline")).toBe(false);
+
+    mod.stop();
+  });
+
+  it("renders link-only elements (e.g. nav items) with the inline variant", async () => {
+    installPlatform({
+      runtime: makeBridge({
+        "Free Break Into Cyber Guide": "免费网络入侵指南",
+      }),
+    });
+
+    document.body.innerHTML = `
+      <ul>
+        <li><a href="https://example.com/guide">Free Break Into Cyber Guide</a></li>
+      </ul>
+    `;
+
+    const mod = createWebpageModule(settings);
+    await mod.start();
+
+    const translation = document.querySelector("li .transflow-translation");
+    expect(translation).not.toBeNull();
+    // Element whose visible text is entirely a single anchor is rendered
+    // inline next to the original link instead of on a new block line.
+    expect(translation!.classList.contains("transflow-translation-inline")).toBe(true);
+
+    const link = translation!.querySelector<HTMLAnchorElement>(".transflow-translation-link");
+    expect(link).not.toBeNull();
+    expect(link!.href).toBe("https://example.com/guide");
+    expect(link!.textContent).toBe("免费网络入侵指南");
 
     mod.stop();
   });
@@ -136,7 +173,11 @@ describe("webpage translation module", () => {
 
     const translation = document.querySelector(".transflow-translation");
     expect(translation).not.toBeNull();
+    // Unsafe-scheme anchors are folded back into the surrounding text,
+    // so the translation never contains an anchor pointing at the
+    // `javascript:` URL.
     expect(translation!.querySelector(".transflow-translation-link")).toBeNull();
+    expect(translation!.querySelector("a")).toBeNull();
 
     mod.stop();
   });

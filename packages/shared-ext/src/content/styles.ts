@@ -10,36 +10,43 @@ const STYLE_ID = "transflow-global-style";
 const CSS = /* css */ `
   .transflow-translation {
     display: block;
-    /* Inherit the host page's text color/weight/background so the
+    /* Inherit the host page's text color/weight/size/family so the
        translation visually matches the surrounding original text
        (style consistency). The theme accent — border-left, underline,
        highlight — still uses --transflow-color so the translation stays
-       clearly distinguishable from the original. */
+       clearly distinguishable from the original. The user-configurable
+       --transflow-font-size still lets them scale the translation
+       relative to the original; we fall back to 'inherit' when the
+       variable is unset so the translation stays in lockstep with the
+       host page's size. */
     color: inherit;
     font-weight: inherit;
     font-style: inherit;
     background: transparent;
-    font-size: var(--transflow-font-size, 0.92em);
+    font-size: var(--transflow-font-size, inherit);
     line-height: 1.5;
     margin: 4px 0 8px 0;
     font-family: inherit;
   }
-  /* In translation-only mode the original is hidden, so any anchors
-     inside it are no longer reachable. We also surface preserved
-     hyperlinks alongside the translation; style them like ordinary
-     in-text links so they stay clickable and visible. */
+  /* Inline variant used when the original element is effectively a
+     single link (e.g. a nav item). Rendering the translation inline
+     keeps it visually attached to the original link — like the pattern
+     "Home 首页" in a navigation bar — instead of dropping to a new
+     block-level line below. */
+  .transflow-translation.transflow-translation-inline {
+    display: inline;
+    margin: 0 0 0 0.4em;
+    padding: 0;
+    border-left: none;
+  }
+  /* Anchors embedded in translations inherit the page's natural link
+     styling so the translated hyperlink matches the original link's
+     look (color, underline). We only nudge them with the theme accent
+     when the host page doesn't style links at all. */
   .transflow-translation a,
   .transflow-translation-link {
-    color: var(--transflow-color, #1a73e8);
+    color: inherit;
     text-decoration: underline;
-  }
-  .transflow-translation-links {
-    display: inline-flex;
-    flex-wrap: wrap;
-    gap: 0.4em;
-    margin-left: 0.4em;
-    font-size: 0.9em;
-    vertical-align: baseline;
   }
   /* Translation-only mode: hide the original block's text/child content
      while keeping our translation child visible. Direct element children
