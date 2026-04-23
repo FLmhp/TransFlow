@@ -27,12 +27,12 @@ TransFlow is a lightweight, **genuinely open-source** alternative to proprietary
 |                              | 🌊 **TransFlow** | 🔒 Other "open-source" translators |
 | ---------------------------- | :--------------: | :--------------------------------: |
 | Truly open-source code       |        ✅        |         ⚠️ partial / stub          |
-| Core features behind paywall |        ❌        |            💸 Pro / Plus            |
-| Your own API keys, your cost |        ✅        |           🪙 token top-ups          |
+| Core features behind paywall |        ❌        |           💸 Pro / Plus            |
+| Your own API keys, your cost |        ✅        |          🪙 token top-ups          |
 | Monthly / yearly membership  |        ❌        |          💳 subscription           |
-| No telemetry, no accounts    |        ✅        |         📡 account required        |
+| No telemetry, no accounts    |        ✅        |        📡 account required         |
 | Minimal, focused scope       |        ✅        |       🧱 feature-bloated UI        |
-| Run as a userscript          |        ✅        |                 ❌                  |
+| Run as a userscript          |        ✅        |                 ❌                 |
 
 > **Our promise:** every feature in TransFlow is available to every user. No "Pro" tier, no gated models, no account sign-up. Bring your own API key (or use free Google Translate) and that's it.
 

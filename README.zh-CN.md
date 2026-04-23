@@ -24,15 +24,15 @@
 
 TransFlow 是一个轻量、**真正开源**的双语翻译插件，是诸如 Immersive Translate 等闭源/半开源方案的替代品。我们相信：核心的翻译体验应当免费、透明，并且完全掌握在用户自己手里。
 
-|                          | 🌊 **TransFlow** | 🔒 其他「开源」翻译插件 |
-| ------------------------ | :--------------: | :---------------------: |
-| 代码完全开源             |        ✅        |     ⚠️ 部分 / 仅外壳    |
-| 核心功能是否收费         |    ❌ 全部免费    |       💸 Pro / 会员      |
-| 使用自己的 API key       |        ✅        |       🪙 平台代币充值    |
-| 是否需要订阅月 / 年费    |        ❌        |        💳 需订阅         |
-| 无埋点、无账号           |    ✅ 零上报     |      📡 必须注册账号     |
-| 功能聚焦、界面简洁       |        ✅        |    🧱 功能臃肿、广告位    |
-| 支持以油猴脚本方式运行   |        ✅        |            ❌            |
+|                        | 🌊 **TransFlow** | 🔒 其他「开源」翻译插件 |
+| ---------------------- | :--------------: | :---------------------: |
+| 代码完全开源           |        ✅        |    ⚠️ 部分 / 仅外壳     |
+| 核心功能是否收费       |   ❌ 全部免费    |      💸 Pro / 会员      |
+| 使用自己的 API key     |        ✅        |     🪙 平台代币充值     |
+| 是否需要订阅月 / 年费  |        ❌        |        💳 需订阅        |
+| 无埋点、无账号         |    ✅ 零上报     |     📡 必须注册账号     |
+| 功能聚焦、界面简洁     |        ✅        |   🧱 功能臃肿、广告位   |
+| 支持以油猴脚本方式运行 |        ✅        |           ❌            |
 
 > **我们的承诺：** TransFlow 的每一项功能对所有用户开放。没有「Pro 会员」、没有被锁死的模型、无需注册账号。自带一把 API key（或直接使用免费的 Google 翻译）即可使用。
 
@@ -53,18 +53,18 @@ TransFlow 是一个轻量、**真正开源**的双语翻译插件，是诸如 Im
 
 ## 🏗 技术栈
 
-| 分层                    | 选型                                                                             |
-| ----------------------- | -------------------------------------------------------------------------------- |
-| 包管理                  | [pnpm](https://pnpm.io/) workspaces                                              |
-| Monorepo 调度           | [turborepo](https://turborepo.com/)                                              |
-| 语言                    | TypeScript (ESNext)                                                              |
-| 打包工具                | [tsdown](https://tsdown.dev/)（基于 Rolldown）                                   |
-| Lint / 格式化           | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/) |
-| Popup / Options UI      | [Solid.js](https://www.solidjs.com/)                                             |
-| 内容脚本 DOM 操作       | [jQuery 4](https://jquery.com/)                                                  |
-| CI                      | GitHub Actions，产出可直接安装的 `.zip`                                          |
-| 单元测试                | [Vitest 4.1](https://vitest.dev/)（按包拆分 `projects`，DOM 相关使用 jsdom）     |
-| 端到端 / 视觉回归测试   | [Playwright](https://playwright.dev/)（加载扩展的 headless Chromium）            |
+| 分层                  | 选型                                                                             |
+| --------------------- | -------------------------------------------------------------------------------- |
+| 包管理                | [pnpm](https://pnpm.io/) workspaces                                              |
+| Monorepo 调度         | [turborepo](https://turborepo.com/)                                              |
+| 语言                  | TypeScript (ESNext)                                                              |
+| 打包工具              | [tsdown](https://tsdown.dev/)（基于 Rolldown）                                   |
+| Lint / 格式化         | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/) |
+| Popup / Options UI    | [Solid.js](https://www.solidjs.com/)                                             |
+| 内容脚本 DOM 操作     | [jQuery 4](https://jquery.com/)                                                  |
+| CI                    | GitHub Actions，产出可直接安装的 `.zip`                                          |
+| 单元测试              | [Vitest 4.1](https://vitest.dev/)（按包拆分 `projects`，DOM 相关使用 jsdom）     |
+| 端到端 / 视觉回归测试 | [Playwright](https://playwright.dev/)（加载扩展的 headless Chromium）            |
 
 ---
 
@@ -123,12 +123,12 @@ TransFlow/
 
 CI 会产出四份产物，可从仓库的 [Actions 页面](../../actions) 或 GitHub Release 中下载对应目标：
 
-| 目标                      | 产物                                |
-| ------------------------- | ----------------------------------- |
-| Chromium / Chrome / Edge  | `transflow-chrome` (`.zip`)         |
-| Firefox                   | `transflow-firefox` (`.zip`)        |
-| Safari                    | `transflow-safari` (`.zip`)         |
-| Tampermonkey / 用户脚本   | `transflow-userscript` (`.user.js`) |
+| 目标                     | 产物                                |
+| ------------------------ | ----------------------------------- |
+| Chromium / Chrome / Edge | `transflow-chrome` (`.zip`)         |
+| Firefox                  | `transflow-firefox` (`.zip`)        |
+| Safari                   | `transflow-safari` (`.zip`)         |
+| Tampermonkey / 用户脚本  | `transflow-userscript` (`.user.js`) |
 
 - **Chrome / Edge / Firefox：** 解压后，在 `chrome://extensions` / `about:debugging` 中选择「加载已解压的扩展程序」。
 - **Safari：** 对解压目录执行 `xcrun safari-web-extension-converter` 生成 Xcode 工程（详见 `apps/safari-ext/README.md`）。
@@ -157,19 +157,19 @@ pnpm --filter @transflow/script-ext  build
 
 ### 🛠 开发脚本
 
-| 命令                   | 说明                                                                              |
-| ---------------------- | --------------------------------------------------------------------------------- |
-| `pnpm build`           | 构建所有 package 与扩展并产出 zip。                                               |
-| `pnpm dev`             | 所有 package 同时以 tsdown 监听模式运行。                                         |
-| `pnpm lint`            | 运行 oxlint（类型感知）+ 全 workspace 的 `tsc --noEmit`。                         |
-| `pnpm format`          | 用 oxfmt 格式化所有源码。                                                         |
-| `pnpm format:check`    | 只检查，不写回文件。                                                              |
-| `pnpm test`            | 运行所有 package 的 [Vitest](https://vitest.dev) 单元测试。                       |
-| `pnpm test:watch`      | Vitest 监听模式。                                                                 |
-| `pnpm test:coverage`   | 在 `coverage/` 生成 v8 覆盖率报告。                                               |
-| `pnpm test:e2e`        | 运行 [Playwright](https://playwright.dev) 端到端 + 视觉回归测试（需先构建）。     |
-| `pnpm test:e2e:update` | 有意更新 UI 后刷新 Playwright 视觉快照。                                          |
-| `pnpm clean`           | 清除 `dist/` 与 `node_modules/`。                                                 |
+| 命令                   | 说明                                                                          |
+| ---------------------- | ----------------------------------------------------------------------------- |
+| `pnpm build`           | 构建所有 package 与扩展并产出 zip。                                           |
+| `pnpm dev`             | 所有 package 同时以 tsdown 监听模式运行。                                     |
+| `pnpm lint`            | 运行 oxlint（类型感知）+ 全 workspace 的 `tsc --noEmit`。                     |
+| `pnpm format`          | 用 oxfmt 格式化所有源码。                                                     |
+| `pnpm format:check`    | 只检查，不写回文件。                                                          |
+| `pnpm test`            | 运行所有 package 的 [Vitest](https://vitest.dev) 单元测试。                   |
+| `pnpm test:watch`      | Vitest 监听模式。                                                             |
+| `pnpm test:coverage`   | 在 `coverage/` 生成 v8 覆盖率报告。                                           |
+| `pnpm test:e2e`        | 运行 [Playwright](https://playwright.dev) 端到端 + 视觉回归测试（需先构建）。 |
+| `pnpm test:e2e:update` | 有意更新 UI 后刷新 Playwright 视觉快照。                                      |
+| `pnpm clean`           | 清除 `dist/` 与 `node_modules/`。                                             |
 
 ---
 
@@ -179,11 +179,11 @@ pnpm --filter @transflow/script-ext  build
 
 ### 翻译引擎
 
-| 引擎               | 是否需要 API key | 速度      | 质量      |
-| ------------------ | ---------------- | --------- | --------- |
-| Google 翻译        | ❌ 免费          | ⚡ 快     | 良好      |
-| OpenAI GPT-4o-mini | ✅ 需要           | ⚡ 快     | 优秀      |
-| OpenAI GPT-4o      | ✅ 需要           | 🐢 偏慢   | 最佳      |
+| 引擎               | 是否需要 API key | 速度    | 质量 |
+| ------------------ | ---------------- | ------- | ---- |
+| Google 翻译        | ❌ 免费          | ⚡ 快   | 良好 |
+| OpenAI GPT-4o-mini | ✅ 需要          | ⚡ 快   | 优秀 |
+| OpenAI GPT-4o      | ✅ 需要          | 🐢 偏慢 | 最佳 |
 
 OpenAI 引擎兼容任意 OpenAI 风格的 Chat Completions 接口 —— 在选项页中设置自定义 **Base URL**（`OPENAI_BASE_URL`）即可指向第三方兼容服务，默认值为 `https://api.openai.com/v1`。
 
