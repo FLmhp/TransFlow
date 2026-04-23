@@ -81,9 +81,7 @@ describe("webpage translation module", () => {
     // Each newly-supported tag should now carry a translation child.
     expect(document.querySelector("dt .transflow-translation")?.textContent).toContain("术语");
     expect(document.querySelector("dd .transflow-translation")?.textContent).toContain("定义");
-    expect(document.querySelector("caption .transflow-translation")?.textContent).toContain(
-      "标题",
-    );
+    expect(document.querySelector("caption .transflow-translation")?.textContent).toContain("标题");
     expect(document.querySelector("summary .transflow-translation")?.textContent).toContain(
       "点击展开",
     );
