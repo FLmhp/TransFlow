@@ -1,6 +1,13 @@
 import path from "node:path";
 import url from "node:url";
-import { test, chromium, type BrowserContext, type Page, expect } from "@playwright/test";
+import {
+  test,
+  chromium,
+  type BrowserContext,
+  type Page,
+  type Worker,
+  expect,
+} from "@playwright/test";
 
 /**
  * Shared helper that launches Chromium with the built chrome-ext loaded,
@@ -43,6 +50,78 @@ export async function openPopup(context: BrowserContext, extensionId: string): P
 export async function openOptions(context: BrowserContext, extensionId: string): Promise<Page> {
   const page = await context.newPage();
   await page.goto(`chrome-extension://${extensionId}/options/index.html`);
+  await page.waitForLoadState("networkidle");
+  return page;
+}
+
+/**
+ * Installs a `context.route` handler that stubs the Google Translate free
+ * endpoint used by `GoogleTranslator`, returning a deterministic fake
+ * translation. This keeps the translated-webpage visual regression stable
+ * and offline — without it, tests would hit the real network.
+ *
+ * The mock wraps each input in `【译】…` so translations are visibly
+ * distinct from the original, mirroring the shape `translate_a/single`
+ * returns: `[[[translated, original, null, null, confidence]], ...]`.
+ */
+export async function stubGoogleTranslate(context: BrowserContext): Promise<void> {
+  await context.route(/translate\.googleapis\.com\/translate_a\/single/, async (route) => {
+    const q = new URL(route.request().url()).searchParams.get("q") ?? "";
+    const translated = `【译】${q}`;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify([[[translated, q, null, null, 1]], null, "en"]),
+    });
+  });
+}
+
+/**
+ * Enables full-page translation by writing to `chrome.storage.sync` from
+ * inside the service worker. The background's `onInstalled` handler seeds
+ * default settings asynchronously; we wait for that seed to land before
+ * overriding `enabled`, otherwise a late merge-write can clobber our flag
+ * back to `false` and the content script sees translation as disabled.
+ */
+export async function enableTranslation(context: BrowserContext): Promise<void> {
+  let [worker] = context.serviceWorkers();
+  if (!worker) worker = (await context.waitForEvent("serviceworker")) as Worker;
+  await worker.evaluate(async () => {
+    // Wait until the background `onInstalled` handler has seeded defaults
+    // into sync storage — detectable by the presence of a well-known key.
+    // Poll up to ~5 s (100 × 50 ms) which is well above the real seed time
+    // while keeping failed runs from hanging indefinitely.
+    for (let i = 0; i < 100; i++) {
+      // @ts-expect-error — `chrome` is injected by the extension runtime.
+      const v = await chrome.storage.sync.get("engine");
+      if (typeof v.engine === "string") break;
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    // @ts-expect-error — `chrome` is injected by the extension runtime.
+    await chrome.storage.sync.set({ enabled: true });
+  });
+}
+
+/**
+ * Navigates to a deterministic in-memory HTML page that is intercepted via
+ * `context.route`. Serving a made-up URL (rather than a real network page)
+ * keeps the translated-webpage visual regression reproducible and fully
+ * offline while still satisfying the `<all_urls>` content-script match.
+ */
+export async function openTestWebpage(
+  context: BrowserContext,
+  html: string,
+  targetUrl = "https://transflow.test/sample",
+): Promise<Page> {
+  await context.route(targetUrl, async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "text/html; charset=utf-8",
+      body: html,
+    });
+  });
+  const page = await context.newPage();
+  await page.goto(targetUrl);
   await page.waitForLoadState("networkidle");
   return page;
 }
