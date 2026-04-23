@@ -239,14 +239,14 @@ describe("webpage translation module", () => {
     const mod = createWebpageModule(translationOnly);
     await mod.start();
 
-    const p = document.getElementById("p") as HTMLElement;
+    const p = document.getElementById("p")!;
     // The original children (text node) have been detached from the DOM,
     // leaving only the translation node as the element's content. The
     // block is tagged with the replaced marker instead of a CSS-hide one.
     expect(p.getAttribute("data-transflow-replaced")).toBe("1");
     expect(p.getAttribute("data-transflow-hide-original")).toBeNull();
     expect(p.childNodes.length).toBe(1);
-    const only = p.firstChild as HTMLElement;
+    const only = p.firstElementChild!;
     expect(only.classList.contains("transflow-translation")).toBe(true);
     // Effective textContent is just the translation — the original text
     // is no longer part of the block's rendered content.
