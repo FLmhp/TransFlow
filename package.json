@@ -2,7 +2,7 @@
   "name": "transflow",
   "version": "1.0.0",
   "private": true,
-  "description": "TransFlow — immersive bilingual translation Chrome extension (monorepo).",
+  "description": "TransFlow — immersive bilingual translation for Chromium, Firefox, Safari, and Tampermonkey/Userscript (monorepo).",
   "license": "MIT",
   "scripts": {
     "build": "turbo run build",

@@ -1,0 +1,22 @@
+{
+  "name": "@transflow/chrome-ext",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsdown && node scripts/package.mjs",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@transflow/shared-ext": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.40",
+    "@types/node": "^24.0.0",
+    "archiver": "^7.0.1",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.0"
+  }
+}

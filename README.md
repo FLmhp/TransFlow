@@ -1,6 +1,6 @@
 # TransFlow — Immersive Translation Extension
 
-> A Chrome extension for immersive bilingual translation. Supports machine translation (Google Translate, DeepL) **and** LLM translation (OpenAI GPT, Google Gemini). Real-time bilingual webpage, PDF document, and video subtitle translation.
+> Immersive bilingual translation for **Chromium, Firefox, Safari, and Tampermonkey/Userscript**. Supports machine translation (Google Translate, DeepL) **and** LLM translation (OpenAI GPT, Google Gemini). Real-time bilingual webpage, PDF document, and video subtitle translation.
 
 ---
 
@@ -37,7 +37,8 @@
 
 ## 📁 Project structure
 
-This repository is a **pnpm + turborepo monorepo**:
+This repository is a **pnpm + turborepo monorepo** with shared packages and
+per-browser target apps:
 
 ```
 TransFlow/
@@ -46,7 +47,7 @@ TransFlow/
 ├── turbo.json
 ├── tsconfig.base.json
 ├── .oxlintrc.json / .oxfmtrc.json
-├── .github/workflows/build.yml  # CI: lint + build + zip artifact
+├── .github/workflows/build.yml  # CI: lint + build all 4 targets
 │
 ├── packages/
 │   ├── core/                  # @transflow/core — shared types, settings,
@@ -55,34 +56,40 @@ TransFlow/
 │   │   └── src/               #   class, TranslationError, TranslatorRegistry
 │   ├── google-translator/     # @transflow/google-translator — Google engine
 │   │   └── src/
-│   └── openai-translator/     # @transflow/openai-translator — OpenAI engine
-│       └── src/               #   (OPENAI_BASE_URL + OPENAI_API_KEY config)
+│   ├── openai-translator/     # @transflow/openai-translator — OpenAI engine
+│   │   └── src/
+│   └── shared-ext/            # @transflow/shared-ext — cross-target shared
+│       └── src/               #   code: platform bridge abstraction, content
+│           ├── platform/      #   modules (webpage/pdf/subtitle/tooltip),
+│           ├── content/       #   popup & options Solid UI, settings store,
+│           ├── popup/         #   background service-worker handler
+│           ├── options/
+│           ├── shared/
+│           └── background/
 │
-└── apps/
-    └── extension/             # @transflow/extension — the Chrome extension
-        ├── manifest.json
-        ├── tsdown.config.ts
-        ├── scripts/package.mjs  # copies static assets + produces zip
-        ├── public/assets/icons/
-        └── src/
-            ├── background/service_worker.ts
-            ├── content/
-            │   ├── index.ts      # entry + state orchestration
-            │   ├── messaging.ts  # typed sendMessage wrapper
-            │   ├── styles.ts     # injected CSS
-            │   ├── tooltip.ts    # selection-translate tooltip
-            │   ├── webpage.ts    # bilingual page translation
-            │   ├── pdf.ts        # PDF.js text-layer translation
-            │   └── subtitle.ts   # video subtitle translation
-            ├── popup/            # Solid.js + TSX
-            │   ├── index.html / index.tsx / App.tsx / styles.css
-            ├── options/          # Solid.js + TSX
-            │   └── index.html / index.tsx / App.tsx / styles.css
-            └── shared/
-                └── settings-store.ts  # Solid signal store for settings
+└── apps/                      # Thin per-target wrappers that install a
+    │                          # Platform bridge and delegate to shared-ext.
+    ├── chrome-ext/            # @transflow/chrome-ext — Chromium MV3
+    ├── firefox-ext/           # @transflow/firefox-ext — Firefox MV3
+    ├── safari-ext/            # @transflow/safari-ext — Safari Web Extension MV3
+    └── script-ext/            # @transflow/script-ext — Tampermonkey userscript
 ```
 
-The content script uses **jQuery 4** for DOM traversal and manipulation; the popup and options pages are full Solid.js applications. Translation engines are wired together in the service worker: each engine lives in its own package and extends the abstract `Translator` class from `@transflow/translator`, so adding a new engine is a matter of implementing one class and registering it with the `TranslatorRegistry`.
+### Platform abstraction
+
+`@transflow/shared-ext` owns all translation logic, UI and DOM operations.
+Each target app is a thin wrapper that installs a pair of bridges —
+`RuntimeBridge` for the content layer and `UiBridge` for popup/options —
+and then calls the shared entry points (`startContent`, `startPopup`,
+`startOptions`, `startServiceWorker`).
+
+For the three WebExtension targets (Chromium/Firefox/Safari) the bridge is
+implemented on top of the `chrome.*` MV3 API via `createWebExtRuntimeBridge`
+/ `createWebExtUiBridge`. The Tampermonkey target provides a completely
+in-process bridge backed by `GM_getValue` / `GM_setValue` and calls the
+translator engines directly (no service worker).
+
+The content script uses **jQuery 4** for DOM traversal and manipulation; the popup and options pages are full Solid.js applications. Translation engines live in their own packages (`@transflow/google-translator`, `@transflow/openai-translator`) and extend the abstract `Translator` class from `@transflow/translator`, so adding a new engine is a matter of implementing one class and registering it with the `TranslatorRegistry`.
 
 ---
 
@@ -90,21 +97,42 @@ The content script uses **jQuery 4** for DOM traversal and manipulation; the pop
 
 ### From a release / CI build (recommended)
 
-1. Grab the latest `transflow-extension.zip` from the
-   [Actions tab](../../actions) (artifact name: **transflow-extension**) or a GitHub Release.
-2. Unzip it somewhere.
-3. Open Chrome → `chrome://extensions/`.
-4. Enable **Developer mode** (top-right toggle).
-5. Click **Load unpacked** and select the unzipped folder.
+CI produces four artifacts — grab the one for your target from the
+[Actions tab](../../actions) or a GitHub Release:
+
+| Target                    | Artifact                            |
+| ------------------------- | ----------------------------------- |
+| Chromium / Chrome / Edge  | `transflow-chrome` (`.zip`)         |
+| Firefox                   | `transflow-firefox` (`.zip`)        |
+| Safari                    | `transflow-safari` (`.zip`)         |
+| Tampermonkey / Userscript | `transflow-userscript` (`.user.js`) |
+
+For Chrome / Edge / Firefox: unzip, then load via
+`chrome://extensions` / `about:debugging` → "Load unpacked".
+For Safari: run `xcrun safari-web-extension-converter` on the unzipped
+folder to produce an Xcode project (see `apps/safari-ext/README.md`).
+For Tampermonkey: open the `.user.js` file in your browser and the
+userscript manager will prompt you to install it.
 
 ### Building locally
 
 ```sh
 # Requires Node.js ≥ 20 and pnpm ≥ 9
 pnpm install
-pnpm build            # turbo runs build in all workspace packages
-# → apps/extension/dist/                    ← load this folder as unpacked
-# → apps/extension/dist/transflow-extension.zip  ← shippable zip
+pnpm build            # builds all four targets via turborepo
+# → apps/chrome-ext/dist/transflow-chrome.zip
+# → apps/firefox-ext/dist/transflow-firefox.zip
+# → apps/safari-ext/dist/transflow-safari.zip
+# → apps/script-ext/dist/transflow.user.js
+```
+
+To build a single target:
+
+```sh
+pnpm --filter @transflow/chrome-ext  build
+pnpm --filter @transflow/firefox-ext build
+pnpm --filter @transflow/safari-ext  build
+pnpm --filter @transflow/script-ext  build
 ```
 
 ### Development scripts
@@ -146,33 +174,41 @@ to point at a compatible provider; the default is `https://api.openai.com/v1`.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                        Chrome Browser                       │
+│                     Host browser / page                     │
 │                                                             │
-│  ┌──────────────┐     messages      ┌──────────────────────┐│
-│  │   Popup UI   │ ◄────────────────► │  Service Worker     ││
-│  │  (Solid.js)  │                   │      (ESM MV3)       ││
-│  └──────────────┘                   │                      ││
-│  ┌──────────────┐                   │  @transflow/         ││
-│  │  Options UI  │ ◄────────────────► │   translator +       ││
-│  │  (Solid.js)  │                   │   engine packages    ││
-│  └──────────────┘                   │  ┌────────────────┐  ││
-│                                     │  │ Google         │  ││
-│                                     │  │ OpenAI         │  ││
-│  ┌──────────────┐     messages      │  └────────────────┘  ││
-│  │ Content (IIFE)│◄───────────────► │                      ││
-│  │  + jQuery 4  │                   └──────────────────────┘│
-│  │              │                                            │
-│  │ ┌──────────┐ │                                            │
-│  │ │ Webpage  │ │                                            │
-│  │ │  PDF     │ │                                            │
-│  │ │ Subtitle │ │                                            │
-│  │ │ Tooltip  │ │                                            │
-│  │ └──────────┘ │                                            │
-│  └──────────────┘                                            │
+│  ┌──────────────┐   bridges   ┌──────────────────────────┐  │
+│  │   Popup UI   │ ──────────► │                          │  │
+│  │  (Solid.js)  │             │   @transflow/shared-ext  │  │
+│  └──────────────┘             │                          │  │
+│  ┌──────────────┐             │  ┌────────────────────┐  │  │
+│  │  Options UI  │ ──────────► │  │ platform bridges   │  │  │
+│  │  (Solid.js)  │             │  │  RuntimeBridge     │  │  │
+│  └──────────────┘             │  │  UiBridge          │  │  │
+│  ┌──────────────┐             │  └────────────────────┘  │  │
+│  │ Content (jQuery)│ ◄──────► │  ┌────────────────────┐  │  │
+│  │  webpage/PDF   │           │  │  @transflow/       │  │  │
+│  │  subtitle/tip  │           │  │   translator +     │  │  │
+│  └──────────────┘             │  │   engine packages  │  │  │
+│                               │  │  (Google, OpenAI)  │  │  │
+│                               │  └────────────────────┘  │  │
+│                               └──────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
+
+      Chromium / Firefox / Safari          Tampermonkey
+      ──────────────────────────           ─────────────
+      createWebExtRuntimeBridge(chrome)   in-process RuntimeBridge
+      createWebExtUiBridge(chrome)        GM_setValue / GM_getValue
+      MV3 background service worker       (no service worker)
 ```
 
-The content script sends `TRANSLATE` messages to the service worker, which dispatches them through the `TranslatorRegistry` from `@transflow/translator` (populated with the engine packages) and returns the translated text. All API calls happen in the service worker (background context) to avoid CORS issues.
+Each target app is a thin shim: it installs its platform bridges and calls
+the shared entry points (`startContent`, `startPopup`, `startOptions`,
+`startServiceWorker`). All translation logic, DOM operations and Solid
+components live in `@transflow/shared-ext`, so a fix or feature is shipped
+to every target in one place.
+
+All API calls happen in the background context (WebExtension targets) or
+directly in-process (userscript target) to avoid CORS issues where possible.
 
 ---
 

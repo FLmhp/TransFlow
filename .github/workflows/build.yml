@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Build extension
+    name: Build all targets
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -52,17 +52,41 @@ jobs:
       - name: Build (turborepo)
         run: pnpm build
 
-      - name: Upload extension zip
+      - name: Upload Chromium zip
         uses: actions/upload-artifact@v7
         with:
-          name: transflow-extension
-          path: apps/extension/dist/transflow-extension.zip
+          name: transflow-chrome
+          path: apps/chrome-ext/dist/transflow-chrome.zip
           if-no-files-found: error
           retention-days: 30
 
-      - name: Upload unpacked dist (for debugging)
+      - name: Upload Firefox zip
         uses: actions/upload-artifact@v7
         with:
-          name: transflow-extension-unpacked
-          path: apps/extension/dist/
+          name: transflow-firefox
+          path: apps/firefox-ext/dist/transflow-firefox.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Safari zip
+        uses: actions/upload-artifact@v7
+        with:
+          name: transflow-safari
+          path: apps/safari-ext/dist/transflow-safari.zip
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload Userscript
+        uses: actions/upload-artifact@v7
+        with:
+          name: transflow-userscript
+          path: apps/script-ext/dist/transflow.user.js
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Upload unpacked Chromium dist (for debugging)
+        uses: actions/upload-artifact@v7
+        with:
+          name: transflow-chrome-unpacked
+          path: apps/chrome-ext/dist/
           retention-days: 14

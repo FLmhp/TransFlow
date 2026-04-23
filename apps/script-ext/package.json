@@ -1,0 +1,24 @@
+{
+  "name": "@transflow/script-ext",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsdown && node scripts/package.mjs",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@transflow/core": "workspace:*",
+    "@transflow/google-translator": "workspace:*",
+    "@transflow/openai-translator": "workspace:*",
+    "@transflow/shared-ext": "workspace:*",
+    "@transflow/translator": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.0"
+  }
+}

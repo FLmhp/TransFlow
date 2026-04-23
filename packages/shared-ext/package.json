@@ -1,0 +1,42 @@
+{
+  "name": "@transflow/shared-ext",
+  "version": "1.0.0",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist .turbo"
+  },
+  "dependencies": {
+    "@transflow/core": "workspace:*",
+    "@transflow/google-translator": "workspace:*",
+    "@transflow/openai-translator": "workspace:*",
+    "@transflow/translator": "workspace:*",
+    "goober": "^2.1.16",
+    "jquery": "^4.0.0",
+    "solid-js": "^1.9.12"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.0",
+    "@babel/preset-typescript": "^7.26.0",
+    "@rollup/plugin-babel": "^7.0.0",
+    "@types/jquery": "^4.0.0",
+    "babel-preset-solid": "^1.9.12",
+    "tsdown": "^0.21.9",
+    "typescript": "^5.9.0"
+  }
+}

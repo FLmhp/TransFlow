@@ -27,7 +27,73 @@ importers:
         specifier: ^5.9.0
         version: 5.9.3
 
-  apps/extension:
+  apps/chrome-ext:
+    dependencies:
+      '@transflow/shared-ext':
+        specifier: workspace:*
+        version: link:../../packages/shared-ext
+    devDependencies:
+      '@types/chrome':
+        specifier: ^0.1.40
+        version: 0.1.40
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.12.2
+      archiver:
+        specifier: ^7.0.1
+        version: 7.0.1
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.9(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
+  apps/firefox-ext:
+    dependencies:
+      '@transflow/shared-ext':
+        specifier: workspace:*
+        version: link:../../packages/shared-ext
+    devDependencies:
+      '@types/chrome':
+        specifier: ^0.1.40
+        version: 0.1.40
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.12.2
+      archiver:
+        specifier: ^7.0.1
+        version: 7.0.1
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.9(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
+  apps/safari-ext:
+    dependencies:
+      '@transflow/shared-ext':
+        specifier: workspace:*
+        version: link:../../packages/shared-ext
+    devDependencies:
+      '@types/chrome':
+        specifier: ^0.1.40
+        version: 0.1.40
+      '@types/node':
+        specifier: ^24.0.0
+        version: 24.12.2
+      archiver:
+        specifier: ^7.0.1
+        version: 7.0.1
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.9(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
+  apps/script-ext:
     dependencies:
       '@transflow/core':
         specifier: workspace:*
@@ -38,43 +104,16 @@ importers:
       '@transflow/openai-translator':
         specifier: workspace:*
         version: link:../../packages/openai-translator
+      '@transflow/shared-ext':
+        specifier: workspace:*
+        version: link:../../packages/shared-ext
       '@transflow/translator':
         specifier: workspace:*
         version: link:../../packages/translator
-      goober:
-        specifier: ^2.1.16
-        version: 2.1.18(csstype@3.2.3)
-      jquery:
-        specifier: ^4.0.0
-        version: 4.0.0
-      solid-js:
-        specifier: ^1.9.12
-        version: 1.9.12
     devDependencies:
-      '@babel/core':
-        specifier: ^7.29.0
-        version: 7.29.0
-      '@babel/preset-typescript':
-        specifier: ^7.26.0
-        version: 7.28.5(@babel/core@7.29.0)
-      '@rollup/plugin-babel':
-        specifier: ^7.0.0
-        version: 7.0.0(@babel/core@7.29.0)
-      '@types/chrome':
-        specifier: ^0.1.40
-        version: 0.1.40
-      '@types/jquery':
-        specifier: ^4.0.0
-        version: 4.0.0
       '@types/node':
         specifier: ^24.0.0
         version: 24.12.2
-      archiver:
-        specifier: ^7.0.1
-        version: 7.0.1
-      babel-preset-solid:
-        specifier: ^1.9.12
-        version: 1.9.12(@babel/core@7.29.0)(solid-js@1.9.12)
       tsdown:
         specifier: ^0.21.9
         version: 0.21.9(typescript@5.9.3)
@@ -116,6 +155,52 @@ importers:
         specifier: workspace:*
         version: link:../translator
     devDependencies:
+      tsdown:
+        specifier: ^0.21.9
+        version: 0.21.9(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.0
+        version: 5.9.3
+
+  packages/shared-ext:
+    dependencies:
+      '@transflow/core':
+        specifier: workspace:*
+        version: link:../core
+      '@transflow/google-translator':
+        specifier: workspace:*
+        version: link:../google-translator
+      '@transflow/openai-translator':
+        specifier: workspace:*
+        version: link:../openai-translator
+      '@transflow/translator':
+        specifier: workspace:*
+        version: link:../translator
+      goober:
+        specifier: ^2.1.16
+        version: 2.1.18(csstype@3.2.3)
+      jquery:
+        specifier: ^4.0.0
+        version: 4.0.0
+      solid-js:
+        specifier: ^1.9.12
+        version: 1.9.12
+    devDependencies:
+      '@babel/core':
+        specifier: ^7.29.0
+        version: 7.29.0
+      '@babel/preset-typescript':
+        specifier: ^7.26.0
+        version: 7.28.5(@babel/core@7.29.0)
+      '@rollup/plugin-babel':
+        specifier: ^7.0.0
+        version: 7.0.0(@babel/core@7.29.0)
+      '@types/jquery':
+        specifier: ^4.0.0
+        version: 4.0.0
+      babel-preset-solid:
+        specifier: ^1.9.12
+        version: 1.9.12(@babel/core@7.29.0)(solid-js@1.9.12)
       tsdown:
         specifier: ^0.21.9
         version: 0.21.9(typescript@5.9.3)
