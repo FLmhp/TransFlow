@@ -396,4 +396,70 @@ describe("webpage translation module", () => {
 
     mod.stop();
   });
+
+  it("skips elements hidden by display:none, visibility:hidden or the hidden attribute", async () => {
+    installPlatform({
+      runtime: makeBridge({
+        "Something went wrong, please reload.": "出了点问题，请重新加载。",
+        "Loading fork status.": "正在加载分叉状态。",
+        "No lists to show here.": "这里没有可显示的列表。",
+        "Visible summary text.": "可见的摘要文本。",
+      }),
+    });
+
+    // Mirrors the pattern from GitHub's Fork/Star/Watch popovers: a
+    // visible control with several pre-rendered alternative-state
+    // messages kept in the DOM via display:none / visibility:hidden /
+    // the `hidden` attribute. We must not translate any of the hidden
+    // copies — their translation would otherwise leak onto the page
+    // when the host swaps which state is visible.
+    document.body.innerHTML = `
+      <div>
+        <p id="display-none" style="display: none">Something went wrong, please reload.</p>
+        <p id="visibility-hidden" style="visibility: hidden">Loading fork status.</p>
+        <p id="hidden-attr" hidden>No lists to show here.</p>
+        <p id="visible">Visible summary text.</p>
+      </div>
+    `;
+
+    const mod = createWebpageModule(settings);
+    await mod.start();
+
+    // None of the three hidden copies pick up a translation child.
+    expect(document.querySelector("#display-none .transflow-translation")).toBeNull();
+    expect(document.querySelector("#visibility-hidden .transflow-translation")).toBeNull();
+    expect(document.querySelector("#hidden-attr .transflow-translation")).toBeNull();
+
+    // The visible sibling is still translated normally.
+    expect(document.querySelector("#visible .transflow-translation")?.textContent).toContain(
+      "可见的摘要文本。",
+    );
+
+    mod.stop();
+  });
+
+  it("skips elements nested inside a display:none ancestor", async () => {
+    installPlatform({
+      runtime: makeBridge({
+        "Hidden popover body.": "隐藏的弹出窗口内容。",
+      }),
+    });
+
+    // Parent is display:none — the inner <p> itself has no inline style
+    // but its effective visibility is hidden. findCandidates must still
+    // skip it so GitHub-style popovers (where the whole container is
+    // hidden until opened) don't emit stray translations.
+    document.body.innerHTML = `
+      <div style="display: none">
+        <p id="nested">Hidden popover body.</p>
+      </div>
+    `;
+
+    const mod = createWebpageModule(settings);
+    await mod.start();
+
+    expect(document.querySelector("#nested .transflow-translation")).toBeNull();
+
+    mod.stop();
+  });
 });

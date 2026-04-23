@@ -103,6 +103,35 @@ function isLayoutItem(el: Element): boolean {
 }
 
 /**
+ * Skip elements that are not actually visible to the user. Sites commonly
+ * keep off-screen menus, modal panels, screen-reader-only copies and
+ * pre-rendered tab content in the DOM with `display: none` or
+ * `visibility: hidden`. Translating those wastes requests and, worse, the
+ * injected translation node can leak back onto the page when the host
+ * flips only the outer container back to visible (the inner translation
+ * we attached stays `visible` and renders as a stray bilingual snippet).
+ *
+ * We walk ancestors because `display: none` on any ancestor hides the
+ * whole subtree, and re-checking each candidate up the tree is cheap
+ * relative to the translation request we'd otherwise kick off.
+ */
+function isHidden(el: Element): boolean {
+  for (let node: Element | null = el; node; node = node.parentElement) {
+    const style = getComputedStyle(node);
+    if (style.display === "none") return true;
+    // `visibility: hidden|collapse` on an ancestor hides descendants
+    // unless a descendant explicitly resets it to `visible`. Checking
+    // the element's own computed visibility handles both cases: if any
+    // ancestor hides it and nothing below re-shows it, the element's
+    // own computed visibility will be `hidden`/`collapse` too.
+    if (node === el && (style.visibility === "hidden" || style.visibility === "collapse")) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * Decide whether a space should be inserted between two adjacent
  * rendered segments. This avoids awkward spacing around punctuation
  * ("世界 。" → "世界。") and around CJK characters, which don't use
@@ -160,6 +189,14 @@ export function createWebpageModule(settings: Settings): WebpageModule {
         // skipped, but those are rare relative to the nav/toolbar
         // case that the bug reproduces.
         if (isLayoutItem(this)) return false;
+        // Skip hidden subtrees: site popovers, `<details>` panels and
+        // screen-reader-only copies commonly keep several alternative
+        // state messages ("Loading…", "Something went wrong", empty
+        // popover bodies, etc.) pre-rendered with `display:none`. These
+        // were surfacing as stray translated prose on the page because
+        // our translation node, once attached, is picked up as the
+        // element's text by anything that later uncovers the container.
+        if (isHidden(this)) return false;
         const text = (this.innerText ?? "").trim();
         if (text.length <= 3) return false;
         if (!hasTranslatableText(text)) return false;
