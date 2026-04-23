@@ -24,6 +24,8 @@ const ATTR_TRANSLATED = "data-transflow-translated";
 const ATTR_HIDE_ORIGINAL = "data-transflow-hide-original";
 const CLASS_TRANSLATION = "transflow-translation";
 const CLASS_PLACEHOLDER = "transflow-translation-loading";
+const CLASS_LINKS = "transflow-translation-links";
+const CLASS_LINK = "transflow-translation-link";
 const THEME_CLASS_PREFIX = "transflow-theme-";
 
 const TARGET_TAGS = [
@@ -35,8 +37,12 @@ const TARGET_TAGS = [
   "h5",
   "h6",
   "li",
+  "dt",
+  "dd",
   "td",
   "th",
+  "caption",
+  "summary",
   "blockquote",
   "figcaption",
 ];
@@ -76,6 +82,52 @@ export function createWebpageModule(settings: Settings): WebpageModule {
     node.dataset.transflowNode = "translation";
     node.textContent = text ?? "…";
     return node;
+  }
+
+  /**
+   * Collect anchors from the original element so we can re-surface them
+   * alongside the translation. This keeps links clickable in
+   * translation-only mode (where the original is hidden) and provides a
+   * visible affordance in bilingual mode that the translated sentence
+   * carried hyperlinks. We only keep absolute http(s) hrefs and skip
+   * anchors with no visible text or ones that point at the translation
+   * node itself.
+   */
+  function collectLinks(el: HTMLElement): { href: string; text: string }[] {
+    const seen = new Set<string>();
+    const links: { href: string; text: string }[] = [];
+    const anchors = el.querySelectorAll<HTMLAnchorElement>("a[href]");
+    for (const a of Array.from(anchors)) {
+      if (a.closest(`.${CLASS_TRANSLATION}`)) continue;
+      const href = a.href;
+      if (!href) continue;
+      if (!/^(https?:|mailto:|tel:)/i.test(href)) continue;
+      const text = (a.textContent ?? "").trim();
+      if (text.length === 0) continue;
+      const key = `${href}\n${text}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      links.push({ href, text });
+    }
+    return links;
+  }
+
+  function buildLinksNode(links: { href: string; text: string }[]): HTMLSpanElement | null {
+    if (links.length === 0) return null;
+    const wrapper = document.createElement("span");
+    wrapper.className = CLASS_LINKS;
+    for (const { href, text } of links) {
+      const a = document.createElement("a");
+      a.className = CLASS_LINK;
+      a.href = href;
+      a.textContent = text;
+      // Preserve typical link affordances. `rel=noopener` matches the
+      // safe defaults we want when surfacing third-party links.
+      a.rel = "noopener";
+      a.target = "_blank";
+      wrapper.appendChild(a);
+    }
+    return wrapper;
   }
 
   function attach(el: HTMLElement, node: HTMLSpanElement): void {
@@ -123,6 +175,15 @@ export function createWebpageModule(settings: Settings): WebpageModule {
 
     placeholder.classList.remove(CLASS_PLACEHOLDER);
     placeholder.textContent = translated;
+
+    // Re-surface the original block's hyperlinks next to the translated
+    // text so they remain clickable — important in translation-only mode
+    // where the original (and its links) is hidden by CSS.
+    const linksNode = buildLinksNode(collectLinks(el));
+    if (linksNode) {
+      placeholder.appendChild(document.createTextNode(" "));
+      placeholder.appendChild(linksNode);
+    }
 
     // Only now — once the translation is rendered — hide the original in
     // translation-only mode. This avoids a flash of blank content between

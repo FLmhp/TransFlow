@@ -10,11 +10,36 @@ const STYLE_ID = "transflow-global-style";
 const CSS = /* css */ `
   .transflow-translation {
     display: block;
-    color: var(--transflow-color, #1a73e8);
+    /* Inherit the host page's text color/weight/background so the
+       translation visually matches the surrounding original text
+       (style consistency). The theme accent — border-left, underline,
+       highlight — still uses --transflow-color so the translation stays
+       clearly distinguishable from the original. */
+    color: inherit;
+    font-weight: inherit;
+    font-style: inherit;
+    background: transparent;
     font-size: var(--transflow-font-size, 0.92em);
     line-height: 1.5;
     margin: 4px 0 8px 0;
     font-family: inherit;
+  }
+  /* In translation-only mode the original is hidden, so any anchors
+     inside it are no longer reachable. We also surface preserved
+     hyperlinks alongside the translation; style them like ordinary
+     in-text links so they stay clickable and visible. */
+  .transflow-translation a,
+  .transflow-translation-link {
+    color: var(--transflow-color, #1a73e8);
+    text-decoration: underline;
+  }
+  .transflow-translation-links {
+    display: inline;
+    margin-left: 0.4em;
+    font-size: 0.9em;
+  }
+  .transflow-translation-links .transflow-translation-link + .transflow-translation-link {
+    margin-left: 0.4em;
   }
   /* Translation-only mode: hide the original block's text/child content
      while keeping our translation child visible. Direct element children
@@ -33,10 +58,35 @@ const CSS = /* css */ `
     font-size: var(--transflow-font-size-abs, 0.92rem) !important;
   }
 
-  /* Loading placeholder — subtle pulsing ellipsis while awaiting response. */
+  /* Loading placeholder — animated three-dot indicator so users get a
+     clear visual signal that translation is in progress and don't
+     mistake the moment for "the original disappeared". The dots are
+     drawn with pseudo-elements so the placeholder stays accessible
+     (textContent is still "…" for screen readers) and works without
+     external assets. */
   .transflow-translation.transflow-translation-loading {
-    opacity: 0.55;
-    font-style: italic;
+    opacity: 0.75;
+    color: var(--transflow-color, #1a73e8);
+  }
+  .transflow-translation.transflow-translation-loading::before {
+    content: "";
+    display: inline-block;
+    width: 0.9em;
+    height: 0.9em;
+    margin-right: 0.4em;
+    vertical-align: -0.15em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: transflow-spin 0.8s linear infinite;
+  }
+  @keyframes transflow-spin {
+    to { transform: rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .transflow-translation.transflow-translation-loading::before {
+      animation-duration: 2.4s;
+    }
   }
 
   /* Themes — inspired by the old immersive-translate display styles. */
