@@ -20,7 +20,9 @@ const CSS = /* css */ `
      while keeping our translation child visible. Direct element children
      are hidden via display:none; direct text nodes are collapsed by
      zeroing the block's own font-size. The translation child restores its
-     font size through the CSS variable below. */
+     font size through an *absolute* (rem-based) CSS variable so that the
+     percentage/em cascade from the zeroed parent does not collapse it to
+     0 as well. */
   [data-transflow-hide-original] {
     font-size: 0 !important;
   }
@@ -28,7 +30,7 @@ const CSS = /* css */ `
     display: none !important;
   }
   [data-transflow-hide-original] > .transflow-translation {
-    font-size: var(--transflow-font-size, 0.92em);
+    font-size: var(--transflow-font-size-abs, 0.92rem) !important;
   }
 
   /* Loading placeholder — subtle pulsing ellipsis while awaiting response. */
@@ -117,4 +119,12 @@ export function injectGlobalStyles(color: string, fontSize: number): void {
   }
   document.documentElement.style.setProperty("--transflow-color", color);
   document.documentElement.style.setProperty("--transflow-font-size", `${fontSize}%`);
+  // Absolute (rem-based) companion of --transflow-font-size. Needed by
+  // the translation-only mode rule, whose parent element carries
+  // `font-size: 0 !important` — percentages/ems would cascade to 0 and
+  // hide the translation along with the original.
+  document.documentElement.style.setProperty(
+    "--transflow-font-size-abs",
+    `${fontSize / 100}rem`,
+  );
 }
