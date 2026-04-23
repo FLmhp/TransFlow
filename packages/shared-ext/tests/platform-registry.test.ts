@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { mergeSettings } from "@transflow/core";
 import { installPlatform, getRuntime, getUi, hasRuntime, hasUi } from "../src/platform/registry.js";
 import type { RuntimeBridge, UiBridge } from "../src/platform/types.js";
 
@@ -6,7 +7,7 @@ import type { RuntimeBridge, UiBridge } from "../src/platform/types.js";
 // we rely on the install* calls to overwrite both runtime and ui.
 function stubRuntime(): RuntimeBridge {
   return {
-    getSettings: async () => ({}) as never,
+    getSettings: async () => mergeSettings({}),
     saveSettings: async () => {},
     requestTranslation: async () => null,
     onSettingsUpdated: () => () => {},
@@ -17,7 +18,7 @@ function stubRuntime(): RuntimeBridge {
 
 function stubUi(): UiBridge {
   return {
-    getSettings: async () => ({}) as never,
+    getSettings: async () => mergeSettings({}),
     saveSettings: async () => {},
     broadcastSettingsToActiveTab: async () => {},
     broadcastSettingsToAllTabs: async () => {},

@@ -15,7 +15,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function getUrl(call: [unknown, ...unknown[]]): string {
+function getUrl(call: Parameters<typeof fetch>): string {
   const value = call[0];
   if (typeof value === "string") return value;
   if (value instanceof URL) return value.href;
@@ -45,7 +45,7 @@ describe("GoogleTranslator", () => {
     const out = await t.run(baseRequest);
     expect(out).toBe("你好，世界");
     expect(fetchSpy).toHaveBeenCalledOnce();
-    const url = getUrl(fetchSpy.mock.calls[0]!);
+    const url = getUrl(fetchSpy.mock.calls[0]);
     expect(url).toContain("sl=en");
     expect(url).toContain("tl=zh-CN");
     expect(url).toContain("q=hello%20world");
@@ -57,7 +57,7 @@ describe("GoogleTranslator", () => {
       .mockResolvedValue(jsonResponse([[["hi", "hi", null, null, 10]]]));
     const t = new GoogleTranslator();
     await t.run({ ...baseRequest, sourceLang: "auto" });
-    expect(getUrl(fetchSpy.mock.calls[0]!)).toContain("sl=auto");
+    expect(getUrl(fetchSpy.mock.calls[0])).toContain("sl=auto");
   });
 
   it("throws TranslationError on non-2xx responses", async () => {

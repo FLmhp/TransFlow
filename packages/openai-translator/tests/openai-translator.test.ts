@@ -15,7 +15,7 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-function getUrl(call: [unknown, ...unknown[]]): string {
+function getUrl(call: Parameters<typeof fetch>): string {
   const value = call[0];
   if (typeof value === "string") return value;
   if (value instanceof URL) return value.href;
@@ -27,17 +27,23 @@ interface ChatBody {
   messages?: Array<{ role: string; content: string }>;
 }
 
-function getRequestBody(call: [unknown, ...unknown[]]): ChatBody {
-  const init = call[1] as RequestInit | undefined;
-  const body = init?.body;
+function getRequestBody(call: Parameters<typeof fetch>): ChatBody {
+  const body = call[1]?.body;
   if (typeof body !== "string") return {};
-  return JSON.parse(body) as ChatBody;
+  return JSON.parse(body);
 }
 
-function getHeader(call: [unknown, ...unknown[]], name: string): string | undefined {
-  const init = call[1] as RequestInit | undefined;
-  const headers = init?.headers as Record<string, string> | undefined;
-  return headers?.[name];
+function getHeader(call: Parameters<typeof fetch>, name: string): string | undefined {
+  const headers = call[1]?.headers;
+  if (!headers) return undefined;
+  if (headers instanceof Headers) return headers.get(name) ?? undefined;
+  if (Array.isArray(headers)) {
+    for (const entry of headers) {
+      if (entry[0] === name) return entry[1];
+    }
+    return undefined;
+  }
+  return headers[name];
 }
 
 const baseRequest = {
@@ -69,7 +75,7 @@ describe("OpenAITranslator", () => {
     );
     const out = await new OpenAITranslator().run(baseRequest);
     expect(out).toBe("你好");
-    const call = fetchSpy.mock.calls[0]!;
+    const call = fetchSpy.mock.calls[0];
     expect(getUrl(call)).toBe(`${DEFAULT_OPENAI_BASE_URL}/chat/completions`);
     expect(getHeader(call, "Authorization")).toBe("Bearer sk-test");
     const body = getRequestBody(call);
@@ -89,7 +95,7 @@ describe("OpenAITranslator", () => {
       ...baseRequest,
       settings: { ...baseRequest.settings, openaiBaseUrl: "https://example.com/v1/" },
     });
-    expect(getUrl(fetchSpy.mock.calls[0]!)).toBe("https://example.com/v1/chat/completions");
+    expect(getUrl(fetchSpy.mock.calls[0])).toBe("https://example.com/v1/chat/completions");
   });
 
   it("uses the default base URL when openaiBaseUrl is blank", async () => {
@@ -100,7 +106,7 @@ describe("OpenAITranslator", () => {
       ...baseRequest,
       settings: { ...baseRequest.settings, openaiBaseUrl: "   " },
     });
-    expect(getUrl(fetchSpy.mock.calls[0]!)).toBe(`${DEFAULT_OPENAI_BASE_URL}/chat/completions`);
+    expect(getUrl(fetchSpy.mock.calls[0])).toBe(`${DEFAULT_OPENAI_BASE_URL}/chat/completions`);
   });
 
   it("surfaces the upstream error message on non-2xx responses", async () => {
