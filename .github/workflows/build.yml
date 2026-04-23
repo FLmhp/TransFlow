@@ -58,6 +58,12 @@ jobs:
       - name: Install Playwright browsers (chromium)
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: Install CJK fonts
+        # The translated-webpage VR snapshot renders real Chinese
+        # characters, so the runner needs Noto Sans CJK installed for
+        # the rendered glyphs to be byte-stable across machines.
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends fonts-noto-cjk
+
       - name: E2E + visual regression tests (playwright)
         run: pnpm test:e2e
 

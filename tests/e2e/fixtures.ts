@@ -60,14 +60,22 @@ export async function openOptions(context: BrowserContext, extensionId: string):
  * translation. This keeps the translated-webpage visual regression stable
  * and offline — without it, tests would hit the real network.
  *
- * The mock wraps each input in `【译】…` so translations are visibly
- * distinct from the original, mirroring the shape `translate_a/single`
- * returns: `[[[translated, original, null, null, confidence]], ...]`.
+ * Pass a `translations` map keyed by source text to return real Chinese
+ * strings (so the snapshot exercises the actual CJK rendering path users
+ * see in production). Any source text not present in the map falls back
+ * to a deterministic `【译】<source>` placeholder so unexpected requests
+ * never silently 404.
+ *
+ * The mock mirrors the shape `translate_a/single` returns:
+ * `[[[translated, original, null, null, confidence]], ...]`.
  */
-export async function stubGoogleTranslate(context: BrowserContext): Promise<void> {
+export async function stubGoogleTranslate(
+  context: BrowserContext,
+  translations: Record<string, string> = {},
+): Promise<void> {
   await context.route(/translate\.googleapis\.com\/translate_a\/single/, async (route) => {
     const q = new URL(route.request().url()).searchParams.get("q") ?? "";
-    const translated = `【译】${q}`;
+    const translated = translations[q] ?? `【译】${q}`;
     await route.fulfill({
       status: 200,
       contentType: "application/json",
