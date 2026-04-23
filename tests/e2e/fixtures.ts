@@ -8,6 +8,7 @@ import {
   type Worker,
   expect,
 } from "@playwright/test";
+import type { Settings } from "../../packages/core/src/settings.js";
 
 /**
  * Shared helper that launches Chromium with the built chrome-ext loaded,
@@ -90,11 +91,21 @@ export async function stubGoogleTranslate(
  * default settings asynchronously; we wait for that seed to land before
  * overriding `enabled`, otherwise a late merge-write can clobber our flag
  * back to `false` and the content script sees translation as disabled.
+ *
+ * Pass `overrides` to additionally set other settings keys (for example
+ * `{ showOriginal: false }` to test translation-only mode, or
+ * `{ translationTheme: "underline" }` to exercise a specific display
+ * theme). The overrides are written in the same `chrome.storage.sync.set`
+ * call as `enabled: true` so the content script observes a single
+ * coherent settings update.
  */
-export async function enableTranslation(context: BrowserContext): Promise<void> {
+export async function enableTranslation(
+  context: BrowserContext,
+  overrides: Partial<Settings> = {},
+): Promise<void> {
   let [worker] = context.serviceWorkers();
   if (!worker) worker = (await context.waitForEvent("serviceworker")) as Worker;
-  await worker.evaluate(async () => {
+  await worker.evaluate(async (extra: Partial<Settings>) => {
     // Wait until the background `onInstalled` handler has seeded defaults
     // into sync storage — detectable by the presence of a well-known key.
     // Poll up to ~5 s (100 × 50 ms) which is well above the real seed time
@@ -106,8 +117,8 @@ export async function enableTranslation(context: BrowserContext): Promise<void> 
       await new Promise((r) => setTimeout(r, 50));
     }
     // @ts-expect-error — `chrome` is injected by the extension runtime.
-    await chrome.storage.sync.set({ enabled: true });
-  });
+    await chrome.storage.sync.set({ enabled: true, ...extra });
+  }, overrides);
 }
 
 /**
