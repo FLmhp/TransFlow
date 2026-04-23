@@ -133,16 +133,17 @@ test.describe("Translated webpage", () => {
   });
 
   test("renders translation-only mode when showOriginal is disabled", async () => {
-    // With `showOriginal: false` the content script tags each translated
-    // block with `data-transflow-hide-original`, which causes the global
-    // CSS to collapse the original text to font-size:0 and hide direct
-    // element children. Only the Chinese translation should be visible.
+    // With `showOriginal: false` the content script replaces each
+    // translated block's inner content with the translation node — the
+    // original children are detached and stashed (to be restored on
+    // stop), and the block is tagged with `data-transflow-replaced`.
+    // Only the Chinese translation should be visible.
     const { context, page } = await setupTranslatedPage({ showOriginal: false });
     try {
-      // Every translated block must carry the hide-original marker, and
+      // Every translated block must carry the replaced marker, and
       // no translation should be left in the loading state.
       await expect
-        .poll(async () => page.locator("[data-transflow-hide-original]").count(), {
+        .poll(async () => page.locator("[data-transflow-replaced]").count(), {
           timeout: 10_000,
         })
         .toBeGreaterThanOrEqual(5);

@@ -48,22 +48,6 @@ const CSS = /* css */ `
     color: inherit;
     text-decoration: underline;
   }
-  /* Translation-only mode: hide the original block's text/child content
-     while keeping our translation child visible. Direct element children
-     are hidden via display:none; direct text nodes are collapsed by
-     zeroing the block's own font-size. The translation child restores its
-     font size through an *absolute* (rem-based) CSS variable so that the
-     percentage/em cascade from the zeroed parent does not collapse it to
-     0 as well. */
-  [data-transflow-hide-original] {
-    font-size: 0 !important;
-  }
-  [data-transflow-hide-original] > *:not(.transflow-translation) {
-    display: none !important;
-  }
-  [data-transflow-hide-original] > .transflow-translation {
-    font-size: var(--transflow-font-size-abs, 0.92rem) !important;
-  }
 
   /* Loading placeholder — animated three-dot indicator so users get a
      clear visual signal that translation is in progress and don't
@@ -176,9 +160,4 @@ export function injectGlobalStyles(color: string, fontSize: number): void {
   }
   document.documentElement.style.setProperty("--transflow-color", color);
   document.documentElement.style.setProperty("--transflow-font-size", `${fontSize}%`);
-  // Absolute (rem-based) companion of --transflow-font-size. Needed by
-  // the translation-only mode rule, whose parent element carries
-  // `font-size: 0 !important` — percentages/ems would cascade to 0 and
-  // hide the translation along with the original.
-  document.documentElement.style.setProperty("--transflow-font-size-abs", `${fontSize / 100}rem`);
 }

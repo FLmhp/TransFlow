@@ -15,8 +15,11 @@
  * Display is controlled by three settings:
  *   - `translationPosition` — translation goes above or below the original
  *     text within the same block.
- *   - `showOriginal` — when `false`, the original text is visually hidden
- *     (translation-only mode) while the element stays in the DOM.
+ *   - `showOriginal` — when `false`, the translation replaces the original
+ *     text inside the block (translation-only mode): the block element
+ *     itself stays in place, but its child content is swapped for the
+ *     translation node. The replaced children are stashed so `stop()` can
+ *     restore the original DOM unchanged.
  *   - `translationTheme` — visual theme applied to the translation node
  *     (normal/underline/dashed/highlight/mask), modelled after the old
  *     immersive-translate display styles.
@@ -26,7 +29,7 @@ import type { Settings } from "@transflow/core";
 import { requestTranslation } from "./messaging.js";
 
 const ATTR_TRANSLATED = "data-transflow-translated";
-const ATTR_HIDE_ORIGINAL = "data-transflow-hide-original";
+const ATTR_REPLACED = "data-transflow-replaced";
 const CLASS_TRANSLATION = "transflow-translation";
 const CLASS_PLACEHOLDER = "transflow-translation-loading";
 const CLASS_INLINE = "transflow-translation-inline";
@@ -84,6 +87,12 @@ export interface WebpageModule {
 export function createWebpageModule(settings: Settings): WebpageModule {
   let active = false;
   let observer: MutationObserver | null = null;
+
+  // Elements whose original children were removed when rendering in
+  // translation-only mode. We keep the detached children in a stash so
+  // `stop()` can restore the block exactly as we found it, without
+  // relying on CSS-hidden siblings staying in the DOM.
+  const stashedOriginals = new Map<HTMLElement, Node[]>();
 
   const themeClass = `${THEME_CLASS_PREFIX}${settings.translationTheme}`;
 
@@ -216,7 +225,7 @@ export function createWebpageModule(settings: Settings): WebpageModule {
 
     // Mark eagerly so concurrent batches and the mutation observer do not
     // re-enter the same element while the request is in flight. We
-    // intentionally do *not* set ATTR_HIDE_ORIGINAL yet: in
+    // intentionally do *not* swap the original content yet: in
     // translation-only mode we want the original text to remain visible
     // while the translation is pending, otherwise the user sees a blank
     // block (with only a "…" placeholder) the moment they disable
@@ -269,11 +278,21 @@ export function createWebpageModule(settings: Settings): WebpageModule {
     placeholder.classList.remove(CLASS_PLACEHOLDER);
     renderSegments(placeholder, segments, translations);
 
-    // Only now — once the translation is rendered — hide the original in
-    // translation-only mode. This avoids a flash of blank content between
-    // toggling the setting and the translation arriving.
+    // Translation-only mode: replace the block's original content with
+    // just the translation node. The block element itself stays put
+    // (preserving its tag and outer styling — e.g. <h1> headings keep
+    // their heading typography), but its inner children are swapped so
+    // the translation becomes the element's effective textContent. The
+    // detached originals are stashed so `stop()` can restore them.
     if (!settings.showOriginal) {
-      el.setAttribute(ATTR_HIDE_ORIGINAL, "1");
+      const originalChildren: Node[] = [];
+      for (const child of Array.from(el.childNodes)) {
+        if (child === placeholder) continue;
+        originalChildren.push(child);
+        el.removeChild(child);
+      }
+      stashedOriginals.set(el, originalChildren);
+      el.setAttribute(ATTR_REPLACED, "1");
     }
   }
 
@@ -316,9 +335,16 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       active = false;
       observer?.disconnect();
       observer = null;
+      // Restore any blocks whose original children we detached in
+      // translation-only mode, before removing the translation nodes so
+      // the DOM returns exactly to its pre-translation shape.
+      for (const [el, children] of stashedOriginals) {
+        for (const child of children) el.appendChild(child);
+        el.removeAttribute(ATTR_REPLACED);
+      }
+      stashedOriginals.clear();
       $(`.${CLASS_TRANSLATION}`).remove();
       $(`[${ATTR_TRANSLATED}]`).removeAttr(ATTR_TRANSLATED);
-      $(`[${ATTR_HIDE_ORIGINAL}]`).removeAttr(ATTR_HIDE_ORIGINAL);
     },
   };
 }

@@ -225,4 +225,38 @@ describe("webpage translation module", () => {
 
     mod.stop();
   });
+
+  it("replaces the block's content with the translation in translation-only mode", async () => {
+    installPlatform({
+      runtime: makeBridge({
+        "Hello world, this is a sample paragraph.": "你好世界，这是一段示例段落。",
+      }),
+    });
+
+    document.body.innerHTML = `<p id="p">Hello world, this is a sample paragraph.</p>`;
+
+    const translationOnly: Settings = { ...settings, showOriginal: false };
+    const mod = createWebpageModule(translationOnly);
+    await mod.start();
+
+    const p = document.getElementById("p") as HTMLElement;
+    // The original children (text node) have been detached from the DOM,
+    // leaving only the translation node as the element's content. The
+    // block is tagged with the replaced marker instead of a CSS-hide one.
+    expect(p.getAttribute("data-transflow-replaced")).toBe("1");
+    expect(p.getAttribute("data-transflow-hide-original")).toBeNull();
+    expect(p.childNodes.length).toBe(1);
+    const only = p.firstChild as HTMLElement;
+    expect(only.classList.contains("transflow-translation")).toBe(true);
+    // Effective textContent is just the translation — the original text
+    // is no longer part of the block's rendered content.
+    expect(p.textContent).toBe("你好世界，这是一段示例段落。");
+
+    // Stop must restore the original DOM shape: the stashed original
+    // children come back and the replaced marker is cleared.
+    mod.stop();
+    expect(p.getAttribute("data-transflow-replaced")).toBeNull();
+    expect(p.querySelector(".transflow-translation")).toBeNull();
+    expect(p.textContent).toBe("Hello world, this is a sample paragraph.");
+  });
 });
