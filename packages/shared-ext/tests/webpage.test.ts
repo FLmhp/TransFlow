@@ -353,4 +353,47 @@ describe("webpage translation module", () => {
 
     mod.stop();
   });
+
+  it("skips elements whose parent is a flex/grid layout container", async () => {
+    installPlatform({
+      runtime: makeBridge({
+        Home: "首页",
+        About: "关于",
+        Contact: "联系",
+      }),
+    });
+
+    // Modern nav bars lay out their anchors with flexbox. Injecting
+    // translation text into the anchors (or adjacent <li> items) grows
+    // the items and causes the row to squeeze / misalign. The module
+    // therefore leaves flex/grid children alone.
+    document.body.innerHTML = `
+      <nav id="flex" style="display: flex">
+        <a id="flex-a" href="/home">Home</a>
+        <a id="flex-b" href="/about">About</a>
+      </nav>
+      <div id="grid" style="display: grid">
+        <a id="grid-a" href="/contact">Contact</a>
+      </div>
+      <header id="block">
+        <a id="block-a" href="/home">Home</a>
+      </header>
+    `;
+
+    const mod = createWebpageModule(settings);
+    await mod.start();
+
+    // Anchors inside the flex/grid containers are left untranslated
+    // so the layout row is not disturbed.
+    expect(document.querySelector("#flex-a .transflow-translation")).toBeNull();
+    expect(document.querySelector("#flex-b .transflow-translation")).toBeNull();
+    expect(document.querySelector("#grid-a .transflow-translation")).toBeNull();
+    // Anchors in a plain block-layout container (e.g. a header with
+    // default display) are still translated.
+    expect(document.querySelector("#block-a .transflow-translation")?.textContent).toContain(
+      "首页",
+    );
+
+    mod.stop();
+  });
 });

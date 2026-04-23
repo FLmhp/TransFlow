@@ -79,6 +79,30 @@ function hasTranslatableText(text: string): boolean {
 }
 
 /**
+ * Detect elements whose parent is a flex or grid container. Such elements
+ * are laid out as rigid layout items (nav bars, toolbars, button groups,
+ * card grids), and injecting a translation as a child grows their text
+ * content — which collapses the row's alignment or forces siblings to
+ * squeeze together in the available space. We'd rather skip translating
+ * these atomic layout items than break the surrounding page chrome; the
+ * tooltip / hover-translation path still lets the user translate them
+ * on demand.
+ */
+function isLayoutItem(el: Element): boolean {
+  const parent = el.parentElement;
+  if (!parent) return false;
+  // `getComputedStyle` requires the element be connected to the document;
+  // findCandidates only sees in-DOM candidates so this is always safe.
+  const display = getComputedStyle(parent).display;
+  return (
+    display === "flex" ||
+    display === "inline-flex" ||
+    display === "grid" ||
+    display === "inline-grid"
+  );
+}
+
+/**
  * Decide whether a space should be inserted between two adjacent
  * rendered segments. This avoids awkward spacing around punctuation
  * ("世界 。" → "世界。") and around CJK characters, which don't use
@@ -127,6 +151,15 @@ export function createWebpageModule(settings: Settings): WebpageModule {
         // or list items to be translated twice — once as the parent
         // block and once as the anchor itself.
         if ($(this).parent().closest(TARGET_SELECTOR).length > 0) return false;
+        // Skip atomic layout items (flex/grid children). These are
+        // typically nav links, toolbar buttons or card tiles whose
+        // size is set by the container — growing them with a
+        // translation child shoves siblings together and visually
+        // breaks the page ("错位挤在一起"). Prose blocks like <p>
+        // sitting inside a flex-row column layout will also be
+        // skipped, but those are rare relative to the nav/toolbar
+        // case that the bug reproduces.
+        if (isLayoutItem(this)) return false;
         const text = (this.innerText ?? "").trim();
         if (text.length <= 3) return false;
         if (!hasTranslatableText(text)) return false;
