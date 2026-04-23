@@ -56,6 +56,26 @@ const SKIP_PARENTS =
 
 const TARGET_SELECTOR = TARGET_TAGS.join(",");
 
+/**
+ * Decide whether a space should be inserted between two adjacent
+ * rendered segments. This avoids awkward spacing around punctuation
+ * ("世界 。" → "世界。") and around CJK characters, which don't use
+ * inter-word whitespace. We still insert a space between Latin words
+ * and between a CJK and a Latin boundary (a widely-used readability
+ * convention).
+ */
+function needsSeparatorSpace(prev: string, next: string): boolean {
+  if (prev.length === 0 || next.length === 0) return false;
+  const lastChar = prev.charAt(prev.length - 1);
+  const firstChar = next.charAt(0);
+  if (/\s/.test(lastChar) || /\s/.test(firstChar)) return false;
+  // No space before closing punctuation (ASCII + common CJK).
+  if (/[.,;:!?)\]}。，、；：！？）】」』》]/.test(firstChar)) return false;
+  // No space after opening punctuation.
+  if (/[([{（【「『《]/.test(lastChar)) return false;
+  return true;
+}
+
 export interface WebpageModule {
   start(): Promise<void>;
   stop(): void;
@@ -158,10 +178,13 @@ export function createWebpageModule(settings: Settings): WebpageModule {
     // Clear any placeholder content before re-rendering.
     while (node.firstChild) node.removeChild(node.firstChild);
 
+    let previousText = "";
     segments.forEach((segment, index) => {
       const translated = translations[index];
       const text = translated && translated.length > 0 ? translated : segment.text;
-      if (index > 0) node.appendChild(document.createTextNode(" "));
+      if (index > 0 && needsSeparatorSpace(previousText, text)) {
+        node.appendChild(document.createTextNode(" "));
+      }
       if (segment.kind === "anchor") {
         const a = document.createElement("a");
         a.className = CLASS_LINK;
@@ -173,6 +196,7 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       } else {
         node.appendChild(document.createTextNode(text));
       }
+      previousText = text;
     });
   }
 
