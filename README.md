@@ -1,22 +1,53 @@
-# TransFlow — Immersive Translation Extension
+<div align="center">
 
-> Immersive bilingual translation for **Chromium, Firefox, Safari, and Tampermonkey/Userscript**. Supports machine translation (Google Translate, DeepL) **and** LLM translation (OpenAI GPT, Google Gemini). Real-time bilingual webpage, PDF document, and video subtitle translation.
+# 🌊 TransFlow
+
+**Immersive, truly open-source bilingual translation — for every browser, every page, every subtitle.**
+
+[English](./README.md) · [简体中文](./README.zh-CN.md)
+
+[![CI](https://github.com/FLmhp/TransFlow/actions/workflows/build.yml/badge.svg)](https://github.com/FLmhp/TransFlow/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![pnpm](https://img.shields.io/badge/pnpm-%E2%89%A59-f69220?logo=pnpm&logoColor=white)](https://pnpm.io/)
+[![Node](https://img.shields.io/badge/Node-%E2%89%A524-5fa04e?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Solid.js](https://img.shields.io/badge/Solid.js-UI-2c4f7c?logo=solid&logoColor=white)](https://www.solidjs.com/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-ff69b4.svg)](https://github.com/FLmhp/TransFlow/pulls)
+
+**Chromium · Firefox · Safari · Tampermonkey**
+
+</div>
+
+---
+
+## 🚀 Why TransFlow?
+
+TransFlow is a lightweight, **genuinely open-source** alternative to proprietary bilingual translators (e.g. Immersive Translate). We believe the core translation experience should be free, transparent, and under your control.
+
+|                              | 🌊 **TransFlow** | 🔒 Other "open-source" translators |
+| ---------------------------- | :--------------: | :--------------------------------: |
+| Truly open-source code       |        ✅        |         ⚠️ partial / stub          |
+| Core features behind paywall |        ❌        |            💸 Pro / Plus            |
+| Your own API keys, your cost |        ✅        |           🪙 token top-ups          |
+| Monthly / yearly membership  |        ❌        |          💳 subscription           |
+| No telemetry, no accounts    |        ✅        |         📡 account required        |
+| Minimal, focused scope       |        ✅        |       🧱 feature-bloated UI        |
+| Run as a userscript          |        ✅        |                 ❌                  |
+
+> **Our promise:** every feature in TransFlow is available to every user. No "Pro" tier, no gated models, no account sign-up. Bring your own API key (or use free Google Translate) and that's it.
 
 ---
 
 ## ✨ Features
 
-| Feature                  | Description                                                                                                                                   |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| 🌐 **Bilingual Webpage** | Paragraphs are translated and inserted inline below (or above) the original text in real-time. SPAs are fully supported via MutationObserver. |
-| 📄 **PDF Translation**   | Works with PDF.js text layers — translates each line of text and shows the translation directly inside the viewer.                            |
-| 🎬 **Video Subtitles**   | Detects subtitles on YouTube, Netflix, Disney+, Prime Video, Bilibili, and generic players. Adds a translated line below each subtitle.       |
-| 🔍 **Google Translate**  | Free, no API key required. Uses the public Google Translate web API.                                                                          |
-| 📘 **DeepL**             | High-quality machine translation. Free or Pro API key required.                                                                               |
-| 🤖 **OpenAI GPT**        | LLM-powered translation using GPT-4o-mini, GPT-4o, etc. API key required.                                                                     |
-| ✨ **Google Gemini**     | LLM-powered translation using Gemini 1.5 Flash/Pro. API key required.                                                                         |
-| 🖱 **Context Menu**      | Right-click any selected text → "Translate selection with TransFlow".                                                                         |
-| ⚙ **Full Settings Page** | Per-engine API keys, language pairs, appearance customisation.                                                                                |
+- 🌐 **Bilingual webpage translation** — paragraphs translated inline in real time; SPAs fully supported via `MutationObserver`.
+- 📄 **PDF translation** — works with PDF.js text layers; each line is translated directly inside the viewer.
+- 🎬 **Video subtitle translation** — YouTube, Netflix, Disney+, Prime Video, Bilibili, and generic HTML5 players.
+- 🖱 **Selection tooltip** — select any text on a page and get an instant translation popup.
+- 🔍 **Google Translate** — free, no API key needed (public web endpoint).
+- 🤖 **OpenAI / compatible LLMs** — bring your own key; works with any OpenAI-compatible Chat Completions endpoint.
+- ⚙️ **Full options page** — per-engine API keys, custom base URL, language pairs, appearance.
+- 🧩 **One code base, four targets** — Chromium MV3, Firefox MV3, Safari Web Extension, and Tampermonkey userscript.
 
 ---
 
@@ -39,8 +70,7 @@
 
 ## 📁 Project structure
 
-This repository is a **pnpm + turborepo monorepo** with shared packages and
-per-browser target apps:
+TransFlow is a **pnpm + turborepo monorepo** with shared packages and per-browser target apps:
 
 ```
 TransFlow/
@@ -77,25 +107,17 @@ TransFlow/
     └── script-ext/            # @transflow/script-ext — Tampermonkey userscript
 ```
 
-### Platform abstraction
+### 🔌 Platform abstraction
 
-`@transflow/shared-ext` owns all translation logic, UI and DOM operations.
-Each target app is a thin wrapper that installs a pair of bridges —
-`RuntimeBridge` for the content layer and `UiBridge` for popup/options —
-and then calls the shared entry points (`startContent`, `startPopup`,
-`startOptions`, `startServiceWorker`).
+`@transflow/shared-ext` owns all translation logic, UI and DOM operations. Each target app is a thin wrapper that installs a pair of bridges — `RuntimeBridge` for the content layer and `UiBridge` for popup/options — and then calls the shared entry points (`startContent`, `startPopup`, `startOptions`, `startServiceWorker`).
 
-For the three WebExtension targets (Chromium/Firefox/Safari) the bridge is
-implemented on top of the `chrome.*` MV3 API via `createWebExtRuntimeBridge`
-/ `createWebExtUiBridge`. The Tampermonkey target provides a completely
-in-process bridge backed by `GM_getValue` / `GM_setValue` and calls the
-translator engines directly (no service worker).
+For the three WebExtension targets (Chromium / Firefox / Safari) the bridge is implemented on top of the `chrome.*` MV3 API via `createWebExtRuntimeBridge` / `createWebExtUiBridge`. The Tampermonkey target provides a completely in-process bridge backed by `GM_getValue` / `GM_setValue` and calls the translator engines directly (no service worker).
 
 The content script uses **jQuery 4** for DOM traversal and manipulation; the popup and options pages are full Solid.js applications. Translation engines live in their own packages (`@transflow/google-translator`, `@transflow/openai-translator`) and extend the abstract `Translator` class from `@transflow/translator`, so adding a new engine is a matter of implementing one class and registering it with the `TranslatorRegistry`.
 
 ---
 
-## 🚀 Installation
+## 📦 Installation
 
 ### From a release / CI build (recommended)
 
@@ -109,17 +131,14 @@ CI produces four artifacts — grab the one for your target from the
 | Safari                    | `transflow-safari` (`.zip`)         |
 | Tampermonkey / Userscript | `transflow-userscript` (`.user.js`) |
 
-For Chrome / Edge / Firefox: unzip, then load via
-`chrome://extensions` / `about:debugging` → "Load unpacked".
-For Safari: run `xcrun safari-web-extension-converter` on the unzipped
-folder to produce an Xcode project (see `apps/safari-ext/README.md`).
-For Tampermonkey: open the `.user.js` file in your browser and the
-userscript manager will prompt you to install it.
+- **Chrome / Edge / Firefox:** unzip, then load via `chrome://extensions` / `about:debugging` → "Load unpacked".
+- **Safari:** run `xcrun safari-web-extension-converter` on the unzipped folder to produce an Xcode project (see `apps/safari-ext/README.md`).
+- **Tampermonkey:** open the `.user.js` file in your browser and the userscript manager will prompt you to install it.
 
-### Building locally
+### 🔨 Building locally
 
 ```sh
-# Requires Node.js ≥ 20 and pnpm ≥ 9
+# Requires Node.js ≥ 24 and pnpm ≥ 9
 pnpm install
 pnpm build            # builds all four targets via turborepo
 # → apps/chrome-ext/dist/transflow-chrome.zip
@@ -137,7 +156,7 @@ pnpm --filter @transflow/safari-ext  build
 pnpm --filter @transflow/script-ext  build
 ```
 
-### Development scripts
+### 🛠 Development scripts
 
 | Command                | Description                                                                                         |
 | ---------------------- | --------------------------------------------------------------------------------------------------- |
@@ -159,25 +178,23 @@ pnpm --filter @transflow/script-ext  build
 
 Click the TransFlow toolbar icon to open the popup, or go to the Settings page (⚙ button in popup).
 
-### Translation Engines
+### Translation engines
 
-| Engine             | API Key?    | Speed     | Quality   |
+| Engine             | API key?    | Speed     | Quality   |
 | ------------------ | ----------- | --------- | --------- |
 | Google Translate   | ❌ Free     | ⚡ Fast   | Good      |
 | OpenAI GPT-4o-mini | ✅ Required | ⚡ Fast   | Excellent |
 | OpenAI GPT-4o      | ✅ Required | 🐢 Slower | Best      |
 
-The OpenAI engine is compatible with any OpenAI-style Chat Completions
-endpoint — set a custom **Base URL** (`OPENAI_BASE_URL`) in the Options page
-to point at a compatible provider; the default is `https://api.openai.com/v1`.
+The OpenAI engine is compatible with any OpenAI-style Chat Completions endpoint — set a custom **Base URL** (`OPENAI_BASE_URL`) in the Options page to point at a compatible provider; the default is `https://api.openai.com/v1`.
 
 #### Getting API keys
 
-- **OpenAI**: [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
+- **OpenAI:** [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 
 ---
 
-## 🏗 Architecture
+## 🏛 Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -192,9 +209,9 @@ to point at a compatible provider; the default is `https://api.openai.com/v1`.
 │  │  (Solid.js)  │             │  │  RuntimeBridge     │  │  │
 │  └──────────────┘             │  │  UiBridge          │  │  │
 │  ┌──────────────┐             │  └────────────────────┘  │  │
-│  │ Content (jQuery)│ ◄──────► │  ┌────────────────────┐  │  │
-│  │  webpage/PDF   │           │  │  @transflow/       │  │  │
-│  │  subtitle/tip  │           │  │   translator +     │  │  │
+│  │Content (jQuery)│ ◄──────► │  ┌────────────────────┐  │  │
+│  │ webpage / PDF  │           │  │  @transflow/       │  │  │
+│  │ subtitle / tip │           │  │   translator +     │  │  │
 │  └──────────────┘             │  │   engine packages  │  │  │
 │                               │  │  (Google, OpenAI)  │  │  │
 │                               │  └────────────────────┘  │  │
@@ -208,25 +225,31 @@ to point at a compatible provider; the default is `https://api.openai.com/v1`.
       MV3 background service worker       (no service worker)
 ```
 
-Each target app is a thin shim: it installs its platform bridges and calls
-the shared entry points (`startContent`, `startPopup`, `startOptions`,
-`startServiceWorker`). All translation logic, DOM operations and Solid
-components live in `@transflow/shared-ext`, so a fix or feature is shipped
-to every target in one place.
+Each target app is a thin shim: it installs its platform bridges and calls the shared entry points (`startContent`, `startPopup`, `startOptions`, `startServiceWorker`). All translation logic, DOM operations and Solid components live in `@transflow/shared-ext`, so a fix or feature is shipped to every target in one place.
 
-All API calls happen in the background context (WebExtension targets) or
-directly in-process (userscript target) to avoid CORS issues where possible.
+All API calls happen in the background context (WebExtension targets) or directly in-process (userscript target) to avoid CORS issues where possible.
 
 ---
 
 ## 🔒 Privacy
 
-- API keys are stored locally in `chrome.storage.sync` (synced across your Chrome profile via Google account encryption).
-- No data is sent to TransFlow servers — all translation requests go directly to the engine you configure.
+- API keys are stored locally in `chrome.storage.sync` (synced across your browser profile via the browser vendor's encrypted sync).
+- **No data is sent to TransFlow servers** — all translation requests go directly to the engine you configure.
+- **No telemetry, no analytics, no accounts.**
 - The Google Translate adapter uses the public web API and may be subject to Google's usage policies.
+
+---
+
+## 🤝 Contributing
+
+Contributions are very welcome! Please open an issue first for significant changes so we can discuss the design.
+
+1. Fork the repo and create a branch from `main`.
+2. `pnpm install`, make your change, run `pnpm lint && pnpm test`.
+3. Open a pull request.
 
 ---
 
 ## 📄 License
 
-MIT
+[MIT](https://opensource.org/licenses/MIT) © TransFlow contributors
