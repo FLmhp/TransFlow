@@ -123,8 +123,5 @@ export function injectGlobalStyles(color: string, fontSize: number): void {
   // the translation-only mode rule, whose parent element carries
   // `font-size: 0 !important` — percentages/ems would cascade to 0 and
   // hide the translation along with the original.
-  document.documentElement.style.setProperty(
-    "--transflow-font-size-abs",
-    `${fontSize / 100}rem`,
-  );
+  document.documentElement.style.setProperty("--transflow-font-size-abs", `${fontSize / 100}rem`);
 }
