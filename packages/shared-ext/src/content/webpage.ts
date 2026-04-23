@@ -93,11 +93,13 @@ export function createWebpageModule(settings: Settings): WebpageModule {
     if (original.length < 4) return;
 
     // Mark eagerly so concurrent batches and the mutation observer do not
-    // re-enter the same element while the request is in flight.
+    // re-enter the same element while the request is in flight. We
+    // intentionally do *not* set ATTR_HIDE_ORIGINAL yet: in
+    // translation-only mode we want the original text to remain visible
+    // while the translation is pending, otherwise the user sees a blank
+    // block (with only a "…" placeholder) the moment they disable
+    // "show original", which reads as "original disappeared".
     el.setAttribute(ATTR_TRANSLATED, "1");
-    if (!settings.showOriginal) {
-      el.setAttribute(ATTR_HIDE_ORIGINAL, "1");
-    }
 
     const placeholder = buildTranslationNode(null);
     attach(el, placeholder);
@@ -116,12 +118,18 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       // original stays readable.
       placeholder.remove();
       el.removeAttribute(ATTR_TRANSLATED);
-      el.removeAttribute(ATTR_HIDE_ORIGINAL);
       return;
     }
 
     placeholder.classList.remove(CLASS_PLACEHOLDER);
     placeholder.textContent = translated;
+
+    // Only now — once the translation is rendered — hide the original in
+    // translation-only mode. This avoids a flash of blank content between
+    // toggling the setting and the translation arriving.
+    if (!settings.showOriginal) {
+      el.setAttribute(ATTR_HIDE_ORIGINAL, "1");
+    }
   }
 
   async function translateBatch(elements: HTMLElement[]): Promise<void> {
