@@ -6,6 +6,7 @@ const common = {
   dts: false,
   sourcemap: false,
   treeshake: true,
+  minify: true,
   // Safari Web Extensions load scripts from the packaged dist folder —
   // bare specifiers like "solid-js" or "@transflow/shared-ext" cannot be
   // resolved at runtime, so every dependency (including workspace
