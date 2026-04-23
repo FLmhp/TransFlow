@@ -2,10 +2,10 @@
 /**
  * Post-build packaging:
  *  1. Copy static assets (manifest.json, HTML, CSS, icons) into dist/.
- *  2. Zip the dist/ directory into dist/transflow-safari.zip — this zip
- *     can be loaded as-is via `chrome://extensions` → "Load unpacked"
- *     (after unzipping) or installed directly on Edge / Chromium browsers
- *     that support .zip uploads.
+ *  2. Zip the dist/ directory into dist/transflow-safari.zip — the folder
+ *     then needs to be converted into a Safari App Extension Xcode project
+ *     via `xcrun safari-web-extension-converter apps/safari-ext/dist`.
+ *     See `apps/safari-ext/README.md` for signing & distribution details.
  */
 import { cp, mkdir, readdir, rm, stat } from "node:fs/promises";
 import { createWriteStream, existsSync } from "node:fs";

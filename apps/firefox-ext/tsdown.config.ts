@@ -6,15 +6,15 @@ const common = {
   dts: false,
   sourcemap: false,
   treeshake: true,
-  // Chromium loads scripts from the packaged dist folder — bare specifiers
-  // like "solid-js" or "@transflow/shared-ext" cannot be resolved at
-  // runtime, so every dependency (including workspace packages) must be
-  // inlined into the output bundle.
+  // Firefox extensions load scripts from the packaged dist folder — bare
+  // specifiers like "solid-js" or "@transflow/shared-ext" cannot be
+  // resolved at runtime, so every dependency (including workspace
+  // packages) must be inlined into the output bundle.
   deps: { alwaysBundle: [/.*/] },
 };
 
 /**
- * Chromium (MV3) build. Each entry is a thin shim that installs the
+ * Firefox (MV3) build. Each entry is a thin shim that installs the
  * WebExtension runtime/UI bridges from `@transflow/shared-ext` and boots
  * the shared UI / content / background logic.
  */

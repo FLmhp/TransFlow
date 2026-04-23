@@ -2,10 +2,11 @@
 /**
  * Post-build packaging:
  *  1. Copy static assets (manifest.json, HTML, CSS, icons) into dist/.
- *  2. Zip the dist/ directory into dist/transflow-firefox.zip — this zip
- *     can be loaded as-is via `chrome://extensions` → "Load unpacked"
- *     (after unzipping) or installed directly on Edge / Chromium browsers
- *     that support .zip uploads.
+ *  2. Zip the dist/ directory into dist/transflow-firefox.zip — after
+ *     unzipping, the folder can be loaded in Firefox via
+ *     `about:debugging` → "This Firefox" → "Load Temporary Add-on",
+ *     or signed & distributed via the AMO (addons.mozilla.org) signing
+ *     flow.
  */
 import { cp, mkdir, readdir, rm, stat } from "node:fs/promises";
 import { createWriteStream, existsSync } from "node:fs";
