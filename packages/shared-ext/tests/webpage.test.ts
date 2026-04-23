@@ -259,4 +259,98 @@ describe("webpage translation module", () => {
     expect(p.querySelector(".transflow-translation")).toBeNull();
     expect(p.textContent).toBe("Hello world, this is a sample paragraph.");
   });
+
+  it("skips non-linguistic blocks so numeric link-only cells do not render twice", async () => {
+    installPlatform({
+      runtime: makeBridge({}),
+    });
+
+    // A forum "views" column in the wild: a `<td>` that contains only
+    // an anchor whose visible text is a number. The translation engine
+    // has no meaningful output for a pure number, so previously the
+    // cell would render the number twice (original link + translation).
+    document.body.innerHTML = `
+      <table>
+        <tr><td id="views"><a href="https://example.com/thread/1">233097</a></td></tr>
+        <tr><td id="punct">— · …</td></tr>
+      </table>
+    `;
+
+    const mod = createWebpageModule(settings);
+    await mod.start();
+
+    // Neither cell should have acquired a translation child: their
+    // text content carries no letters.
+    expect(document.querySelector("#views .transflow-translation")).toBeNull();
+    expect(document.querySelector("#punct .transflow-translation")).toBeNull();
+    // The original anchor text must still be present exactly once.
+    const cell = document.getElementById("views")!;
+    expect(cell.textContent?.match(/233097/g)?.length).toBe(1);
+
+    mod.stop();
+  });
+
+  it("translates standalone anchors (e.g. header navigation links)", async () => {
+    installPlatform({
+      runtime: makeBridge({
+        "Log In": "登录",
+        Register: "注册",
+        "Forgotten Password": "忘记密码",
+      }),
+    });
+
+    // HBH-style header nav: bare `<a>` elements in a header, not
+    // wrapped in `<li>` or any other block tag. These were previously
+    // missed by the target-tag filter.
+    document.body.innerHTML = `
+      <header>
+        <a id="login" href="/login">Log In</a>
+        <a id="register" href="/register">Register</a>
+        <a id="forgot" href="/forgot">Forgotten Password</a>
+      </header>
+    `;
+
+    const mod = createWebpageModule(settings);
+    await mod.start();
+
+    expect(document.querySelector("#login .transflow-translation")?.textContent).toContain("登录");
+    expect(document.querySelector("#register .transflow-translation")?.textContent).toContain(
+      "注册",
+    );
+    expect(document.querySelector("#forgot .transflow-translation")?.textContent).toContain(
+      "忘记密码",
+    );
+    // Standalone anchor translations render inline so the nav layout
+    // isn't broken onto new lines.
+    const loginTranslation = document.querySelector<HTMLElement>("#login .transflow-translation")!;
+    expect(loginTranslation.classList.contains("transflow-translation-inline")).toBe(true);
+
+    mod.stop();
+  });
+
+  it("does not double-translate anchors nested inside a block target", async () => {
+    installPlatform({
+      runtime: makeBridge({
+        "Visit example for more information.": "请访问示例以获取更多信息。",
+        example: "示例",
+      }),
+    });
+
+    // The paragraph (block target) should own the translation; the
+    // nested anchor must not pick up its own separate translation node
+    // even though `<a>` is now in TARGET_TAGS.
+    document.body.innerHTML = `
+      <p id="p">Visit <a id="a" href="https://example.com/">example</a> for more information.</p>
+    `;
+
+    const mod = createWebpageModule(settings);
+    await mod.start();
+
+    // Exactly one translation child, and it lives under the paragraph.
+    expect(document.querySelectorAll(".transflow-translation").length).toBe(1);
+    expect(document.querySelector("#p > .transflow-translation")).not.toBeNull();
+    expect(document.querySelector("#a > .transflow-translation")).toBeNull();
+
+    mod.stop();
+  });
 });

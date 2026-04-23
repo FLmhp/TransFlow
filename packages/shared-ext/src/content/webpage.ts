@@ -53,11 +53,30 @@ const TARGET_TAGS = [
   "summary",
   "blockquote",
   "figcaption",
+  // Standalone anchors — navigation links and header menu items are
+  // often bare `<a>` elements that are not wrapped in a `<li>` or other
+  // block tag. We still skip anchors nested inside another target tag
+  // (see `findCandidates`) so paragraphs and list items remain the unit
+  // of translation for prose that happens to contain inline links.
+  "a",
 ];
 const SKIP_PARENTS =
   "script, style, noscript, code, pre, kbd, samp, var, button, input, select, textarea, svg, canvas, math";
 
 const TARGET_SELECTOR = TARGET_TAGS.join(",");
+
+/**
+ * Text that carries no linguistic content (pure digits, punctuation,
+ * whitespace, symbols) is not worth sending to a translation engine:
+ * the "translation" is always the same string, and when the source
+ * element is a link-only block like `<td><a>233097</a></td>` we end up
+ * rendering the same number twice (original + translation) which looks
+ * like a duplicate translation bug. Require at least one Unicode letter
+ * before treating the block as translatable.
+ */
+function hasTranslatableText(text: string): boolean {
+  return /\p{L}/u.test(text);
+}
 
 /**
  * Decide whether a space should be inserted between two adjacent
@@ -102,8 +121,16 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       .filter(function () {
         if (this.hasAttribute(ATTR_TRANSLATED)) return false;
         if ($(this).closest(SKIP_PARENTS).length > 0) return false;
+        // Skip elements whose content will already be translated as
+        // part of an ancestor block. Without this guard, adding `<a>`
+        // to TARGET_TAGS would cause anchors nested inside paragraphs
+        // or list items to be translated twice — once as the parent
+        // block and once as the anchor itself.
+        if ($(this).parent().closest(TARGET_SELECTOR).length > 0) return false;
         const text = (this.innerText ?? "").trim();
-        return text.length > 3;
+        if (text.length <= 3) return false;
+        if (!hasTranslatableText(text)) return false;
+        return true;
       })
       .toArray();
   }
@@ -222,6 +249,10 @@ export function createWebpageModule(settings: Settings): WebpageModule {
     if (el.hasAttribute(ATTR_TRANSLATED)) return;
     const original = (el.innerText ?? "").trim();
     if (original.length < 4) return;
+    // Guard against non-linguistic content (e.g. a number-only table
+    // cell wrapped in an anchor) even when `translateOne` is reached
+    // directly via the mutation observer's batch path.
+    if (!hasTranslatableText(original)) return;
 
     // Mark eagerly so concurrent batches and the mutation observer do not
     // re-enter the same element while the request is in flight. We
@@ -248,8 +279,13 @@ export function createWebpageModule(settings: Settings): WebpageModule {
     // block (e.g. a nav `<li><a>Home</a></li>`): every non-anchor text
     // run outside anchors is empty. This matches the visual pattern of
     // navigation menus where the translation sits inline next to the
-    // original link instead of dropping to a new line.
-    const inline = segments.every((s) => s.kind === "anchor") && segments.length > 0;
+    // original link instead of dropping to a new line. Standalone
+    // anchor targets (e.g. a header's bare `<a>Log In</a>`) are also
+    // inline by nature, so their translation should sit on the same
+    // line as the link.
+    const inline =
+      el instanceof HTMLAnchorElement ||
+      (segments.every((s) => s.kind === "anchor") && segments.length > 0);
 
     const placeholder = buildTranslationNode(null, inline);
     attach(el, placeholder);
