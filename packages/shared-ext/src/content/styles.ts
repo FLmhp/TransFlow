@@ -34,12 +34,12 @@ const CSS = /* css */ `
     text-decoration: underline;
   }
   .transflow-translation-links {
-    display: inline;
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.4em;
     margin-left: 0.4em;
     font-size: 0.9em;
-  }
-  .transflow-translation-links .transflow-translation-link + .transflow-translation-link {
-    margin-left: 0.4em;
+    vertical-align: baseline;
   }
   /* Translation-only mode: hide the original block's text/child content
      while keeping our translation child visible. Direct element children

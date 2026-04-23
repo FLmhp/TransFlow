@@ -101,7 +101,7 @@ export function createWebpageModule(settings: Settings): WebpageModule {
       if (a.closest(`.${CLASS_TRANSLATION}`)) continue;
       const href = a.href;
       if (!href) continue;
-      if (!/^(https?:|mailto:|tel:)/i.test(href)) continue;
+      if (!/^https?:/i.test(href)) continue;
       const text = (a.textContent ?? "").trim();
       if (text.length === 0) continue;
       const key = `${href}\n${text}`;
