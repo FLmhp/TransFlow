@@ -52,6 +52,24 @@ jobs:
       - name: Build (turborepo)
         run: pnpm build
 
+      - name: Unit tests (vitest)
+        run: pnpm test
+
+      - name: Install Playwright browsers (chromium)
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E + visual regression tests (playwright)
+        run: pnpm test:e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          if-no-files-found: ignore
+          retention-days: 14
+
       - name: Upload Chromium zip
         uses: actions/upload-artifact@v7
         with:

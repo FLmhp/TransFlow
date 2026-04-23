@@ -22,16 +22,18 @@
 
 ## 🏗 Tech stack
 
-| Layer                  | Tooling                                                                          |
-| ---------------------- | -------------------------------------------------------------------------------- |
-| Package manager        | [pnpm](https://pnpm.io/) (workspaces)                                            |
-| Monorepo runner        | [turborepo](https://turborepo.com/)                                              |
-| Language               | TypeScript (ESNext)                                                              |
-| Bundler                | [tsdown](https://tsdown.dev/) (powered by Rolldown)                              |
-| Linter / Formatter     | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/) |
-| Popup / Options UI     | [Solid.js](https://www.solidjs.com/)                                             |
-| Content-script DOM ops | [jQuery 4](https://jquery.com/)                                                  |
-| CI                     | GitHub Actions — produces an installable `.zip` artifact                         |
+| Layer                   | Tooling                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------- |
+| Package manager         | [pnpm](https://pnpm.io/) (workspaces)                                            |
+| Monorepo runner         | [turborepo](https://turborepo.com/)                                              |
+| Language                | TypeScript (ESNext)                                                              |
+| Bundler                 | [tsdown](https://tsdown.dev/) (powered by Rolldown)                              |
+| Linter / Formatter      | [oxlint](https://oxc.rs/docs/guide/usage/linter.html) + [oxfmt](https://oxc.rs/) |
+| Popup / Options UI      | [Solid.js](https://www.solidjs.com/)                                             |
+| Content-script DOM ops  | [jQuery 4](https://jquery.com/)                                                  |
+| CI                      | GitHub Actions — produces an installable `.zip` artifact                         |
+| Unit tests              | [Vitest 4.1](https://vitest.dev/) (per-package `projects`, jsdom for DOM code)   |
+| E2E / Visual regression | [Playwright](https://playwright.dev/) (headless Chromium, extension loaded)      |
 
 ---
 
@@ -137,14 +139,19 @@ pnpm --filter @transflow/script-ext  build
 
 ### Development scripts
 
-| Command             | Description                                                    |
-| ------------------- | -------------------------------------------------------------- |
-| `pnpm build`        | Build all packages + the extension, produce the zip.           |
-| `pnpm dev`          | Run tsdown in watch mode across all packages.                  |
-| `pnpm lint`         | Run oxlint (type-aware) + `tsc --noEmit` across the workspace. |
-| `pnpm format`       | Run oxfmt to format every source file.                         |
-| `pnpm format:check` | Verify formatting without writing.                             |
-| `pnpm clean`        | Remove `dist/` and `node_modules/`.                            |
+| Command                | Description                                                                                         |
+| ---------------------- | --------------------------------------------------------------------------------------------------- |
+| `pnpm build`           | Build all packages + the extension, produce the zip.                                                |
+| `pnpm dev`             | Run tsdown in watch mode across all packages.                                                       |
+| `pnpm lint`            | Run oxlint (type-aware) + `tsc --noEmit` across the workspace.                                      |
+| `pnpm format`          | Run oxfmt to format every source file.                                                              |
+| `pnpm format:check`    | Verify formatting without writing.                                                                  |
+| `pnpm test`            | Run the [Vitest](https://vitest.dev) unit-test suite across every package.                          |
+| `pnpm test:watch`      | Re-run Vitest on file changes.                                                                      |
+| `pnpm test:coverage`   | Generate a v8 coverage report under `coverage/`.                                                    |
+| `pnpm test:e2e`        | Run the [Playwright](https://playwright.dev) end-to-end + visual-regression suite (requires build). |
+| `pnpm test:e2e:update` | Refresh Playwright visual snapshots after an intentional UI change.                                 |
+| `pnpm clean`           | Remove `dist/` and `node_modules/`.                                                                 |
 
 ---
 
