@@ -8,7 +8,7 @@ import { babel } from "@rollup/plugin-babel";
  * bundles them into its final build.
  */
 export default defineConfig({
-  entry: ["src/index.ts"],
+  entry: ["src/index.ts", "src/background.ts"],
   outDir: "dist",
   format: ["esm"],
   target: "esnext",
