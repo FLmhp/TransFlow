@@ -1,7 +1,23 @@
-import { createSignal, Show, For, type Component } from "solid-js";
+import { createSignal, Show, For, type Component, type JSX } from "solid-js";
+import {
+  Globe,
+  Settings as SettingsIcon,
+  Server,
+  Database,
+  Info,
+  Search,
+  Bot,
+  Languages,
+  Zap,
+  Palette,
+  FileText,
+  Captions,
+  MousePointer,
+  Sparkles,
+  Check,
+} from "lucide-solid";
 import {
   DEFAULT_SETTINGS,
-  ENGINE_DESCRIPTORS,
   SOURCE_LANGUAGES,
   TARGET_LANGUAGES,
   type Settings,
@@ -14,13 +30,20 @@ import {
 } from "../shared/settings-store.js";
 import * as s from "./styles.js";
 
-type Section = "general" | "engines" | "appearance" | "about";
+type Section = "general" | "services" | "advanced" | "about";
 
 const OPENAI_MODELS: readonly { value: string; label: string }[] = [
   { value: "gpt-4o-mini", label: "gpt-4o-mini（推荐，快速且经济）" },
   { value: "gpt-4o", label: "gpt-4o（质量最佳）" },
   { value: "gpt-4-turbo", label: "gpt-4-turbo" },
   { value: "gpt-3.5-turbo", label: "gpt-3.5-turbo（最快）" },
+];
+
+const NAV_ITEMS: readonly { id: Section; label: string; icon: () => JSX.Element }[] = [
+  { id: "general", label: "常规", icon: () => <SettingsIcon size={16} /> },
+  { id: "services", label: "翻译服务", icon: () => <Server size={16} /> },
+  { id: "advanced", label: "高级设置", icon: () => <Database size={16} /> },
+  { id: "about", label: "关于", icon: () => <Info size={16} /> },
 ];
 
 export const App: Component = () => {
@@ -54,20 +77,11 @@ export const App: Component = () => {
       <div class={s.page}>
         <nav class={s.sidebar}>
           <div class={s.sidebarLogo}>
-            <span>🌐</span>
+            <Globe size={20} />
             <span>TransFlow</span>
           </div>
           <ul class={s.sidebarNav}>
-            <For
-              each={
-                [
-                  { id: "general", label: "⚙ 常规" },
-                  { id: "engines", label: "🔧 引擎" },
-                  { id: "appearance", label: "🎨 外观" },
-                  { id: "about", label: "ℹ 关于" },
-                ] as const
-              }
-            >
+            <For each={NAV_ITEMS}>
               {(item) => (
                 <li>
                   <a
@@ -78,6 +92,7 @@ export const App: Component = () => {
                       setActive(item.id);
                     }}
                   >
+                    <span class={s.navIcon}>{item.icon()}</span>
                     {item.label}
                   </a>
                 </li>
@@ -88,15 +103,22 @@ export const App: Component = () => {
 
         <main class={s.content}>
           <Show when={bannerVisible()}>
-            <div class={s.saveBanner}>✓ 设置已保存</div>
+            <div class={s.saveBanner}>
+              <Check size={14} />
+              设置已保存
+            </div>
           </Show>
 
+          {/* ── 常规 ────────────────────────────────────────── */}
           <Show when={active() === "general"}>
             <section>
-              <h2>常规设置</h2>
+              <h2>常规</h2>
 
               <div class={s.card}>
-                <h3>语言</h3>
+                <h3>
+                  <Languages size={16} />
+                  翻译语言
+                </h3>
                 <div class={s.formRow}>
                   <label>源语言</label>
                   <select
@@ -122,7 +144,10 @@ export const App: Component = () => {
               </div>
 
               <div class={s.card}>
-                <h3>功能</h3>
+                <h3>
+                  <Zap size={16} />
+                  翻译功能
+                </h3>
                 <div class={`${s.formRow} toggle-row`}>
                   <span>启用 PDF 翻译</span>
                   <label class={s.toggleSwitch}>
@@ -171,6 +196,13 @@ export const App: Component = () => {
                     <option value="above">原文上方</option>
                   </select>
                 </div>
+              </div>
+
+              <div class={s.card}>
+                <h3>
+                  <Palette size={16} />
+                  翻译外观
+                </h3>
                 <div class={s.formRow}>
                   <label>译文样式</label>
                   <select
@@ -195,10 +227,139 @@ export const App: Component = () => {
                     <option value="mask">模糊遮罩（悬停显示）</option>
                   </select>
                 </div>
+                <div class={s.formRow}>
+                  <label>译文文字颜色</label>
+                  <input
+                    type="color"
+                    value={settings().translationColor}
+                    onInput={(e) => void update({ translationColor: e.currentTarget.value })}
+                  />
+                </div>
+                <div class={s.formRow}>
+                  <label>相对页面的字号（%）</label>
+                  <input
+                    type="range"
+                    min="70"
+                    max="120"
+                    step="5"
+                    value={settings().translationFontSize}
+                    onInput={(e) =>
+                      void update({ translationFontSize: Number(e.currentTarget.value) })
+                    }
+                  />
+                  <span class={s.rangeLabel}>{settings().translationFontSize}%</span>
+                </div>
               </div>
 
               <div class={s.card}>
-                <h3>翻译缓存</h3>
+                <h3>预览</h3>
+                <Show when={settings().showOriginal}>
+                  <p class={s.previewOriginal}>The quick brown fox jumps over the lazy dog.</p>
+                </Show>
+                <p
+                  class={`${s.previewTranslation} preview-theme-${settings().translationTheme}`}
+                  style={{
+                    color: settings().translationColor,
+                    "--transflow-color": settings().translationColor,
+                    "font-size": `${settings().translationFontSize}%`,
+                  }}
+                >
+                  快速的棕色狐狸跳过了懒狗。
+                </p>
+              </div>
+            </section>
+          </Show>
+
+          {/* ── 翻译服务 ─────────────────────────────────────── */}
+          <Show when={active() === "services"}>
+            <section>
+              <h2>翻译服务</h2>
+
+              <div class={s.card}>
+                <h3>
+                  <Search size={16} />
+                  Google 翻译
+                </h3>
+                <p class={s.hint}>免费的谷歌翻译网页接口，无需 API 密钥，可能存在速率限制。</p>
+                <div class={`${s.formRow} toggle-row`}>
+                  <span>使用 Google 翻译</span>
+                  <label class={s.toggleSwitch}>
+                    <input
+                      type="checkbox"
+                      checked={settings().engine === "google"}
+                      onChange={() => void update({ engine: "google" })}
+                    />
+                    <span class={s.slider} />
+                  </label>
+                </div>
+              </div>
+
+              <div class={s.card}>
+                <h3>
+                  <Bot size={16} />
+                  OpenAI
+                </h3>
+                <div class={`${s.formRow} toggle-row`}>
+                  <span>使用 OpenAI 翻译</span>
+                  <label class={s.toggleSwitch}>
+                    <input
+                      type="checkbox"
+                      checked={settings().engine === "openai"}
+                      onChange={() => void update({ engine: "openai" })}
+                    />
+                    <span class={s.slider} />
+                  </label>
+                </div>
+                <div class={s.formRow}>
+                  <label>OpenAI API 密钥</label>
+                  <input
+                    type="password"
+                    placeholder="sk-..."
+                    value={settings().openaiApiKey}
+                    onInput={(e) => void update({ openaiApiKey: e.currentTarget.value })}
+                  />
+                </div>
+                <div class={s.formRow}>
+                  <label>Base URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://api.openai.com/v1"
+                    value={settings().openaiBaseUrl}
+                    onInput={(e) => void update({ openaiBaseUrl: e.currentTarget.value })}
+                  />
+                </div>
+                <div class={s.formRow}>
+                  <label>模型</label>
+                  <select
+                    value={settings().openaiModel}
+                    onChange={(e) => void update({ openaiModel: e.currentTarget.value })}
+                  >
+                    <For each={OPENAI_MODELS}>
+                      {(m) => <option value={m.value}>{m.label}</option>}
+                    </For>
+                  </select>
+                </div>
+                <p class={s.hint}>
+                  可在{" "}
+                  <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
+                    platform.openai.com
+                  </a>{" "}
+                  获取 API 密钥。如需使用 OpenAI 兼容的服务，可自定义 Base URL。
+                </p>
+              </div>
+            </section>
+          </Show>
+
+          {/* ── 高级设置 ─────────────────────────────────────── */}
+          <Show when={active() === "advanced"}>
+            <section>
+              <h2>高级设置</h2>
+
+              <div class={s.card}>
+                <h3>
+                  <Database size={16} />
+                  缓存设置
+                </h3>
                 <p class={s.hint}>
                   在内存中缓存相同的翻译结果，以减少接口调用并降低延迟。缓存仅在当前浏览器会话内有效。
                 </p>
@@ -245,131 +406,7 @@ export const App: Component = () => {
             </section>
           </Show>
 
-          <Show when={active() === "engines"}>
-            <section>
-              <h2>翻译引擎</h2>
-              <div class={s.card}>
-                <h3>当前引擎</h3>
-                <div class={s.formRow}>
-                  <label>选择引擎</label>
-                  <select
-                    value={settings().engine}
-                    onChange={(e) => {
-                      const value = e.currentTarget.value;
-                      if (value === "google" || value === "openai") {
-                        void update({ engine: value });
-                      }
-                    }}
-                  >
-                    <For each={ENGINE_DESCRIPTORS}>
-                      {(engine) => (
-                        <option value={engine.id}>
-                          {engine.label} — {engine.description}
-                        </option>
-                      )}
-                    </For>
-                  </select>
-                </div>
-              </div>
-
-              <Show when={settings().engine === "google"}>
-                <div class={s.card}>
-                  <h3>🔍 谷歌翻译</h3>
-                  <p class={s.hint}>免费的谷歌翻译网页接口，无需 API 密钥，可能存在速率限制。</p>
-                </div>
-              </Show>
-
-              <Show when={settings().engine === "openai"}>
-                <div class={s.card}>
-                  <h3>🤖 OpenAI GPT</h3>
-                  <div class={s.formRow}>
-                    <label>OpenAI API 密钥</label>
-                    <input
-                      type="password"
-                      placeholder="sk-..."
-                      value={settings().openaiApiKey}
-                      onInput={(e) => void update({ openaiApiKey: e.currentTarget.value })}
-                    />
-                  </div>
-                  <div class={s.formRow}>
-                    <label>Base URL</label>
-                    <input
-                      type="text"
-                      placeholder="https://api.openai.com/v1"
-                      value={settings().openaiBaseUrl}
-                      onInput={(e) => void update({ openaiBaseUrl: e.currentTarget.value })}
-                    />
-                  </div>
-                  <div class={s.formRow}>
-                    <label>模型</label>
-                    <select
-                      value={settings().openaiModel}
-                      onChange={(e) => void update({ openaiModel: e.currentTarget.value })}
-                    >
-                      <For each={OPENAI_MODELS}>
-                        {(m) => <option value={m.value}>{m.label}</option>}
-                      </For>
-                    </select>
-                  </div>
-                  <p class={s.hint}>
-                    可在{" "}
-                    <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">
-                      platform.openai.com
-                    </a>{" "}
-                    获取 API 密钥。如需使用 OpenAI 兼容的服务，可自定义 Base URL。
-                  </p>
-                </div>
-              </Show>
-            </section>
-          </Show>
-
-          <Show when={active() === "appearance"}>
-            <section>
-              <h2>外观</h2>
-              <div class={s.card}>
-                <h3>译文样式</h3>
-                <div class={s.formRow}>
-                  <label>译文文字颜色</label>
-                  <input
-                    type="color"
-                    value={settings().translationColor}
-                    onInput={(e) => void update({ translationColor: e.currentTarget.value })}
-                  />
-                </div>
-                <div class={s.formRow}>
-                  <label>相对页面的字号（%）</label>
-                  <input
-                    type="range"
-                    min="70"
-                    max="120"
-                    step="5"
-                    value={settings().translationFontSize}
-                    onInput={(e) =>
-                      void update({ translationFontSize: Number(e.currentTarget.value) })
-                    }
-                  />
-                  <span class={s.rangeLabel}>{settings().translationFontSize}%</span>
-                </div>
-              </div>
-              <div class={s.card}>
-                <h3>预览</h3>
-                <Show when={settings().showOriginal}>
-                  <p class={s.previewOriginal}>The quick brown fox jumps over the lazy dog.</p>
-                </Show>
-                <p
-                  class={`${s.previewTranslation} preview-theme-${settings().translationTheme}`}
-                  style={{
-                    color: settings().translationColor,
-                    "--transflow-color": settings().translationColor,
-                    "font-size": `${settings().translationFontSize}%`,
-                  }}
-                >
-                  快速的棕色狐狸跳过了懒狗。
-                </p>
-              </div>
-            </section>
-          </Show>
-
+          {/* ── 关于 ────────────────────────────────────────── */}
           <Show when={active() === "about"}>
             <section>
               <h2>关于 TransFlow</h2>
@@ -377,12 +414,30 @@ export const App: Component = () => {
                 <h3>TransFlow v1.0.0</h3>
                 <p>一款沉浸式双语翻译 Chrome 扩展，支持以下功能：</p>
                 <ul class={s.featureList}>
-                  <li>🌐 实时双语网页翻译</li>
-                  <li>📄 PDF 文档翻译（PDF.js 文本层）</li>
-                  <li>🎬 视频字幕翻译（YouTube、Netflix 等）</li>
-                  <li>🤖 机器翻译：谷歌翻译</li>
-                  <li>✨ 大模型翻译：OpenAI GPT（及兼容服务）</li>
-                  <li>🖱 右键菜单翻译所选文本</li>
+                  <li>
+                    <Globe size={14} />
+                    实时双语网页翻译
+                  </li>
+                  <li>
+                    <FileText size={14} />
+                    PDF 文档翻译（PDF.js 文本层）
+                  </li>
+                  <li>
+                    <Captions size={14} />
+                    视频字幕翻译（YouTube、Netflix 等）
+                  </li>
+                  <li>
+                    <Search size={14} />
+                    机器翻译：谷歌翻译
+                  </li>
+                  <li>
+                    <Sparkles size={14} />
+                    大模型翻译：OpenAI GPT（及兼容服务）
+                  </li>
+                  <li>
+                    <MousePointer size={14} />
+                    右键菜单翻译所选文本
+                  </li>
                 </ul>
               </div>
             </section>

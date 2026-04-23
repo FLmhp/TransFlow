@@ -1,5 +1,15 @@
 import { Show, For, type Component } from "solid-js";
 import {
+  Globe,
+  ArrowLeftRight,
+  Settings,
+  Check,
+  FileText,
+  Captions,
+  Search,
+  Bot,
+} from "lucide-solid";
+import {
   ENGINE_DESCRIPTORS,
   SOURCE_LANGUAGES,
   TARGET_LANGUAGES,
@@ -8,6 +18,11 @@ import {
 import { loaded, settings, updateSettings } from "../shared/settings-store.js";
 import { getUi } from "../platform/registry.js";
 import * as s from "./styles.js";
+
+const ENGINE_ICONS: Record<TranslationEngine, () => ReturnType<typeof Search>> = {
+  google: () => <Search size={18} />,
+  openai: () => <Bot size={18} />,
+};
 
 export const App: Component = () => {
   const toggleEnabled = (event: Event & { currentTarget: HTMLInputElement }) =>
@@ -26,7 +41,9 @@ export const App: Component = () => {
       <div class={s.popupContainer}>
         <header class={s.popupHeader}>
           <div class={s.logo}>
-            <span class={s.logoIcon}>🌐</span>
+            <span class={s.logoIcon}>
+              <Globe size={20} />
+            </span>
             <span class={s.logoText}>TransFlow</span>
           </div>
           <label class={s.toggleSwitch} title="启用/停用翻译">
@@ -36,7 +53,12 @@ export const App: Component = () => {
         </header>
 
         <div class={`${s.statusBar} ${settings().enabled ? "active" : ""}`}>
-          <span>{settings().enabled ? "✓ 翻译已启用" : "翻译已停用"}</span>
+          <span class={s.statusContent}>
+            <Show when={settings().enabled}>
+              <Check size={12} />
+            </Show>
+            {settings().enabled ? "翻译已启用" : "翻译已停用"}
+          </span>
         </div>
 
         <section class={s.section}>
@@ -53,7 +75,7 @@ export const App: Component = () => {
               </select>
             </div>
             <span class={s.swapArrow} title="交换语言" onClick={swapLangs}>
-              ⇄
+              <ArrowLeftRight size={18} />
             </span>
             <div class={s.field}>
               <label>目标语言</label>
@@ -79,7 +101,7 @@ export const App: Component = () => {
                   onClick={() => setEngine(engine.id)}
                 >
                   <input type="radio" name="engine" checked={settings().engine === engine.id} />
-                  <span class={s.engineIcon}>{engine.icon}</span>
+                  <span class={s.engineIcon}>{ENGINE_ICONS[engine.id]()}</span>
                   <span>{engine.label}</span>
                 </label>
               )}
@@ -96,7 +118,8 @@ export const App: Component = () => {
                 checked={settings().pdfEnabled}
                 onChange={(e) => updateSettings({ pdfEnabled: e.currentTarget.checked })}
               />
-              <span>📄 PDF 翻译</span>
+              <FileText size={14} />
+              <span>PDF 翻译</span>
             </label>
             <label class={s.featureItem}>
               <input
@@ -104,14 +127,16 @@ export const App: Component = () => {
                 checked={settings().subtitleEnabled}
                 onChange={(e) => updateSettings({ subtitleEnabled: e.currentTarget.checked })}
               />
-              <span>🎬 视频字幕翻译</span>
+              <Captions size={14} />
+              <span>视频字幕翻译</span>
             </label>
           </div>
         </section>
 
         <div class={s.popupActions}>
           <button class={s.btnSecondary} onClick={() => getUi().openOptionsPage?.()}>
-            ⚙ 设置
+            <Settings size={14} />
+            设置
           </button>
           <button
             class={s.btnPrimary}

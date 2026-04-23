@@ -33,6 +33,7 @@
     "@transflow/translator": "workspace:*",
     "goober": "^2.1.16",
     "jquery": "^4.0.0",
+    "lucide-solid": "1.8.0",
     "solid-js": "^1.9.12"
   },
   "devDependencies": {

@@ -169,14 +169,17 @@ function openSettingsModal(): void {
   );
 
   panel.innerHTML = `
-    <h2 style="margin:0 0 12px;font-size:18px">🌐 TransFlow 设置</h2>
+    <h2 style="margin:0 0 12px;font-size:18px;display:flex;align-items:center;gap:8px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 1 0 20 14.5 14.5 0 0 1 0-20"/><path d="M2 12h20"/></svg>
+      TransFlow 设置
+    </h2>
     <label style="display:flex;align-items:center;gap:8px;margin:8px 0">
       <input type="checkbox" id="tf-enabled" /> 启用翻译
     </label>
     <label style="display:block;margin:10px 0 4px">引擎</label>
     <select id="tf-engine" style="width:100%;padding:6px">
-      <option value="google">🔍 谷歌翻译（免费）</option>
-      <option value="openai">🤖 OpenAI GPT</option>
+      <option value="google">Google 谷歌翻译（免费）</option>
+      <option value="openai">OpenAI GPT</option>
     </select>
     <label style="display:block;margin:10px 0 4px">目标语言</label>
     <input id="tf-target" type="text" style="width:100%;padding:6px;box-sizing:border-box" />
@@ -244,11 +247,11 @@ function openSettingsModal(): void {
 // ─── Tampermonkey menu commands ──────────────────────────────────────────
 
 if (typeof GM_registerMenuCommand === "function") {
-  GM_registerMenuCommand("🌐 TransFlow: 切换整页翻译", () => {
+  GM_registerMenuCommand("TransFlow: 切换整页翻译", () => {
     toggleTranslation();
     for (const cb of toggleListeners) cb();
   });
-  GM_registerMenuCommand("⚙ TransFlow: 打开设置", () => {
+  GM_registerMenuCommand("TransFlow: 打开设置", () => {
     openSettingsModal();
   });
 }

@@ -57,6 +57,8 @@ export const logo = css`
 `;
 
 export const logoIcon = css`
+  display: flex;
+  align-items: center;
   font-size: 20px;
 `;
 
@@ -127,6 +129,12 @@ export const statusBar = css`
   }
 `;
 
+export const statusContent = css`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+`;
+
 export const section = css`
   padding: 12px 16px 6px;
   border-bottom: 1px solid #e9ecef;
@@ -176,7 +184,8 @@ export const field = css`
 `;
 
 export const swapArrow = css`
-  font-size: 18px;
+  display: flex;
+  align-items: center;
   cursor: pointer;
   color: #6c757d;
   padding-bottom: 4px;
@@ -198,6 +207,8 @@ export const engineGrid = css`
 `;
 
 export const engineIcon = css`
+  display: flex;
+  align-items: center;
   font-size: 18px;
 `;
 
@@ -257,6 +268,10 @@ export const popupActions = css`
 
 const buttonBase = `
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
   padding: 9px 12px;
   border: none;
   border-radius: 8px;

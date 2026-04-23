@@ -68,7 +68,9 @@ export const sidebarNav = css`
 `;
 
 export const navLink = css`
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 14px;
   color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
@@ -85,6 +87,13 @@ export const navLink = css`
     color: #fff;
     font-weight: 600;
   }
+`;
+
+export const navIcon = css`
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  opacity: 0.9;
 `;
 
 export const content = css`
@@ -108,6 +117,9 @@ export const card = css`
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 
   h3 {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 15px;
     margin-bottom: 14px;
     color: #212529;
@@ -270,6 +282,9 @@ export const featureList = css`
   padding-left: 0;
 
   li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     padding: 4px 0;
     font-size: 13px;
     color: #3c4043;
@@ -316,6 +331,9 @@ export const saveBanner = css`
   position: fixed;
   top: 16px;
   right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 10px 16px;
   background: #34a853;
   color: #fff;
