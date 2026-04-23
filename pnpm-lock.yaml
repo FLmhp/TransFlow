@@ -33,6 +33,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared-ext
     devDependencies:
+      '@types/archiver':
+        specifier: ^6.0.3
+        version: 6.0.4
       '@types/chrome':
         specifier: ^0.1.40
         version: 0.1.40
@@ -55,6 +58,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared-ext
     devDependencies:
+      '@types/archiver':
+        specifier: ^6.0.3
+        version: 6.0.4
       '@types/chrome':
         specifier: ^0.1.40
         version: 0.1.40
@@ -77,6 +83,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared-ext
     devDependencies:
+      '@types/archiver':
+        specifier: ^6.0.3
+        version: 6.0.4
       '@types/chrome':
         specifier: ^0.1.40
         version: 0.1.40
@@ -928,6 +937,9 @@ packages:
   '@tybys/wasm-util@0.10.1':
     resolution: {integrity: sha512-9tTaPJLSiejZKx+Bmog4uSubteqTvFrVrURwkmHixBo0G4seD0zUxp98E1DzUBJxLQ3NPwXrGKDiVjwx/DpPsg==}
 
+  '@types/archiver@6.0.4':
+    resolution: {integrity: sha512-ULdQpARQ3sz9WH4nb98mJDYA0ft2A8C4f4fovvUcFwINa1cgGjY36JCAYuP5YypRq4mco1lJp1/7jEMS2oR0Hg==}
+
   '@types/chrome@0.1.40':
     resolution: {integrity: sha512-UnfyRAe8ORu9HSuTH0EqyOEUin3JrWW9Nl/gDXezNfTUrfIoxw+WRZgKOxGz0t5BnjbfXBnS2eCYfW2PxH1wcA==}
 
@@ -951,6 +963,9 @@ packages:
 
   '@types/node@24.12.2':
     resolution: {integrity: sha512-A1sre26ke7HDIuY/M23nd9gfB+nrmhtYyMINbjI1zHJxYteKR6qSMX56FsmjMcDb3SMcjJg5BiRRgOCC/yBD0g==}
+
+  '@types/readdir-glob@1.1.5':
+    resolution: {integrity: sha512-raiuEPUYqXu+nvtY2Pe8s8FEmZ3x5yAH4VkLdihcPdalvsHltomrRC9BzuStrJ9yk06470hS0Crw0f1pXqD+Hg==}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -2143,6 +2158,10 @@ snapshots:
       tslib: 2.8.1
     optional: true
 
+  '@types/archiver@6.0.4':
+    dependencies:
+      '@types/readdir-glob': 1.1.5
+
   '@types/chrome@0.1.40':
     dependencies:
       '@types/filesystem': 0.0.36
@@ -2165,6 +2184,10 @@ snapshots:
   '@types/node@24.12.2':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/readdir-glob@1.1.5':
+    dependencies:
+      '@types/node': 24.12.2
 
   abort-controller@3.0.0:
     dependencies:

@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsdown && node scripts/package.mjs",
+    "build": "tsdown && node scripts/package.ts",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist .turbo"

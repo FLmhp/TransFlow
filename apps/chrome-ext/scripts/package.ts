@@ -20,13 +20,13 @@ const PUBLIC_DIR = join(ROOT, "public");
 const SRC = join(ROOT, "src");
 
 /** Static files copied verbatim into dist/. */
-const STATIC_COPIES = [
+const STATIC_COPIES: { from: string; to: string }[] = [
   { from: join(ROOT, "manifest.json"), to: join(DIST, "manifest.json") },
   { from: join(SRC, "popup", "index.html"), to: join(DIST, "popup", "index.html") },
   { from: join(SRC, "options", "index.html"), to: join(DIST, "options", "index.html") },
 ];
 
-async function copyStatic() {
+async function copyStatic(): Promise<void> {
   await mkdir(DIST, { recursive: true });
   await Promise.all(
     STATIC_COPIES.map(async ({ from, to }) => {
@@ -42,11 +42,11 @@ async function copyStatic() {
   }
 }
 
-async function zipExtension() {
+async function zipExtension(): Promise<void> {
   const zipPath = join(DIST, "transflow-chrome.zip");
   if (existsSync(zipPath)) await rm(zipPath);
 
-  await new Promise((resolvePromise, rejectPromise) => {
+  await new Promise<void>((resolvePromise, rejectPromise) => {
     const output = createWriteStream(zipPath);
     const archive = archiver("zip", { zlib: { level: 9 } });
 
@@ -61,7 +61,7 @@ async function zipExtension() {
       ignore: ["transflow-chrome.zip", "**/*.map"],
       dot: false,
     });
-    archive.finalize();
+    void archive.finalize();
   });
 
   const { size } = await stat(zipPath);
@@ -69,7 +69,7 @@ async function zipExtension() {
   console.log(`✓ Packaged extension → dist/transflow-chrome.zip (${kb} KB)`);
 }
 
-async function sanityCheck() {
+async function sanityCheck(): Promise<void> {
   const expected = [
     join(DIST, "manifest.json"),
     join(DIST, "background", "service_worker.js"),
@@ -80,7 +80,7 @@ async function sanityCheck() {
     join(DIST, "options", "index.js"),
     join(DIST, "assets", "icons", "icon128.png"),
   ];
-  const missing = [];
+  const missing: string[] = [];
   for (const path of expected) {
     if (!existsSync(path)) missing.push(path);
   }
@@ -91,7 +91,7 @@ async function sanityCheck() {
   }
 }
 
-async function listDist(dir, prefix = "") {
+async function listDist(dir: string, prefix = ""): Promise<void> {
   const entries = (await readdir(dir, { withFileTypes: true })).toSorted((a, b) =>
     a.name.localeCompare(b.name),
   );
@@ -114,7 +114,7 @@ async function listDist(dir, prefix = "") {
   console.log("dist/ tree:");
   await listDist(DIST);
   await zipExtension();
-})().catch((err) => {
+})().catch((err: unknown) => {
   console.error(err);
   process.exit(1);
 });

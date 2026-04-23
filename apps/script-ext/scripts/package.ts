@@ -32,7 +32,7 @@ const META = `// ==UserScript==
 
 `;
 
-async function main() {
+async function main(): Promise<void> {
   if (!existsSync(OUT)) {
     console.error(`Missing bundle: ${OUT}`);
     process.exit(1);
@@ -47,7 +47,7 @@ async function main() {
   console.log(`✓ Userscript → dist/transflow.user.js (${(body.length / 1024).toFixed(1)} KB)`);
 }
 
-main().catch((err) => {
+main().catch((err: unknown) => {
   console.error(err);
   process.exit(1);
 });

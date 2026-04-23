@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsdown && node scripts/package.mjs",
+    "build": "tsdown && node scripts/package.ts",
     "dev": "tsdown --watch",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist .turbo"
@@ -13,6 +13,7 @@
     "@transflow/shared-ext": "workspace:*"
   },
   "devDependencies": {
+    "@types/archiver": "^6.0.3",
     "@types/chrome": "^0.1.40",
     "@types/node": "^24.0.0",
     "archiver": "^7.0.1",
