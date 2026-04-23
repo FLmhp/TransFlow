@@ -71,11 +71,11 @@ export function createWebpageModule(settings: Settings): WebpageModule {
   function buildTranslationNode(text: string | null): HTMLSpanElement {
     const classes = [CLASS_TRANSLATION, themeClass];
     if (text === null) classes.push(CLASS_PLACEHOLDER);
-    const $node = $("<span/>", {
-      class: classes.join(" "),
-      "data-transflow-node": "translation",
-    }).text(text ?? "…");
-    return $node.get(0) as HTMLSpanElement;
+    const node = document.createElement("span");
+    node.className = classes.join(" ");
+    node.dataset.transflowNode = "translation";
+    node.textContent = text ?? "…";
+    return node;
   }
 
   function attach(el: HTMLElement, node: HTMLSpanElement): void {

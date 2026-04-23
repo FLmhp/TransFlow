@@ -35,7 +35,7 @@ interface BackgroundChrome {
   };
   storage: {
     sync: {
-      get: (keys: null) => Promise<unknown>;
+      get: (keys: null) => Promise<Partial<Settings>>;
       set: (items: object) => Promise<void>;
     };
   };
@@ -92,7 +92,7 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
   }
 
   chrome.runtime.onInstalled.addListener(async () => {
-    const current = (await chrome.storage.sync.get(null)) as Partial<Settings>;
+    const current = await chrome.storage.sync.get(null);
     await chrome.storage.sync.set(mergeSettings(current));
     installContextMenus();
   });
@@ -106,7 +106,7 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
     ) => {
       if (!tab?.id) return;
       if (info.menuItemId === "translateSelection" && info.selectionText) {
-        const settings = mergeSettings((await chrome.storage.sync.get(null)) as Partial<Settings>);
+        const settings = mergeSettings(await chrome.storage.sync.get(null));
         try {
           const translated = await translate({
             text: info.selectionText,
@@ -137,9 +137,7 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
           return true;
 
         case "GET_SETTINGS":
-          void chrome.storage.sync
-            .get(null)
-            .then((data) => sendResponse(mergeSettings(data as Partial<Settings>)));
+          void chrome.storage.sync.get(null).then((data) => sendResponse(mergeSettings(data)));
           return true;
 
         case "SAVE_SETTINGS":
@@ -157,7 +155,7 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
     sendResponse: SendResponse,
   ): Promise<void> {
     try {
-      const settings = mergeSettings((await chrome.storage.sync.get(null)) as Partial<Settings>);
+      const settings = mergeSettings(await chrome.storage.sync.get(null));
       const translated = await translate({
         text: message.text,
         sourceLang: message.sourceLang ?? settings.sourceLang,

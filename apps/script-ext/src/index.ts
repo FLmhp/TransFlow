@@ -24,7 +24,7 @@ import {
 // ─── Greasemonkey / Tampermonkey API typing ──────────────────────────────
 
 declare function GM_getValue<T>(name: string, defaultValue: T): T;
-declare function GM_setValue<T>(name: string, value: T): void;
+declare function GM_setValue(name: string, value: unknown): void;
 declare function GM_registerMenuCommand(label: string, fn: () => void): number | void;
 
 const STORAGE_KEY = "transflow:settings";
@@ -195,30 +195,45 @@ function openSettingsModal(): void {
   overlay.appendChild(panel);
   document.body.appendChild(overlay);
 
-  const $ = <T extends HTMLElement>(id: string): T => panel.querySelector(`#${id}`) as T;
+  function required<T extends HTMLElement>(selector: string, ctor: new () => T): T {
+    const el = panel.querySelector(selector);
+    if (!(el instanceof ctor)) {
+      throw new Error(`[TransFlow] missing element ${selector}`);
+    }
+    return el;
+  }
+  const enabledEl = required("#tf-enabled", HTMLInputElement);
+  const engineEl = required("#tf-engine", HTMLSelectElement);
+  const targetEl = required("#tf-target", HTMLInputElement);
+  const keyEl = required("#tf-key", HTMLInputElement);
+  const baseEl = required("#tf-base", HTMLInputElement);
+  const modelEl = required("#tf-model", HTMLInputElement);
+  const cancelEl = required("#tf-cancel", HTMLButtonElement);
+  const saveEl = required("#tf-save", HTMLButtonElement);
 
-  $<HTMLInputElement>("tf-enabled").checked = current.enabled;
-  $<HTMLSelectElement>("tf-engine").value = current.engine;
-  $<HTMLInputElement>("tf-target").value = current.targetLang;
-  $<HTMLInputElement>("tf-key").value = current.openaiApiKey;
-  $<HTMLInputElement>("tf-base").value = current.openaiBaseUrl;
-  $<HTMLInputElement>("tf-model").value = current.openaiModel;
+  enabledEl.checked = current.enabled;
+  engineEl.value = current.engine;
+  targetEl.value = current.targetLang;
+  keyEl.value = current.openaiApiKey;
+  baseEl.value = current.openaiBaseUrl;
+  modelEl.value = current.openaiModel;
 
   const close = () => overlay.remove();
-  $("tf-cancel").addEventListener("click", close);
+  cancelEl.addEventListener("click", close);
   overlay.addEventListener("click", (e) => {
     if (e.target === overlay) close();
   });
 
-  $("tf-save").addEventListener("click", () => {
+  saveEl.addEventListener("click", () => {
+    const engine: Settings["engine"] = engineEl.value === "openai" ? "openai" : "google";
     const next: Settings = {
       ...current,
-      enabled: $<HTMLInputElement>("tf-enabled").checked,
-      engine: $<HTMLSelectElement>("tf-engine").value as Settings["engine"],
-      targetLang: $<HTMLInputElement>("tf-target").value.trim() || current.targetLang,
-      openaiApiKey: $<HTMLInputElement>("tf-key").value,
-      openaiBaseUrl: $<HTMLInputElement>("tf-base").value.trim() || current.openaiBaseUrl,
-      openaiModel: $<HTMLInputElement>("tf-model").value.trim() || current.openaiModel,
+      enabled: enabledEl.checked,
+      engine,
+      targetLang: targetEl.value.trim() || current.targetLang,
+      openaiApiKey: keyEl.value,
+      openaiBaseUrl: baseEl.value.trim() || current.openaiBaseUrl,
+      openaiModel: modelEl.value.trim() || current.openaiModel,
     };
     persistSettings(next);
     void applySettingsExternal(next);

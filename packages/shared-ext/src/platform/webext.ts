@@ -39,9 +39,16 @@ function send<T>(chrome: ChromeLike, message: Message): Promise<T> {
         reject(new Error(err.message ?? "chrome.runtime.sendMessage failed"));
         return;
       }
+      // Safety: the chrome.runtime.sendMessage response is untyped; callers
+      // specify the expected shape via the generic parameter.
+      // eslint-disable-next-line typescript/no-unsafe-type-assertion
       resolve(response as T);
     });
   });
+}
+
+function isMessage(raw: unknown): raw is Message {
+  return !!raw && typeof raw === "object" && "type" in raw;
 }
 
 function subscribe(
@@ -50,9 +57,8 @@ function subscribe(
   handler: (message: Message) => void,
 ): Unsubscribe {
   const listener = (raw: unknown) => {
-    const message = raw as Message;
-    if (!message || typeof message !== "object" || !("type" in message)) return;
-    if (filter(message)) handler(message);
+    if (!isMessage(raw)) return;
+    if (filter(raw)) handler(raw);
   };
   chrome.runtime.onMessage.addListener(listener);
   return () => chrome.runtime.onMessage.removeListener(listener);
