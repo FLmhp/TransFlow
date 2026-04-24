@@ -139,6 +139,24 @@ export const App: Component = () => {
             设置
           </button>
           <button
+            class={s.btnSecondary}
+            title="在 TransFlow 查看器中打开一个 PDF URL"
+            onClick={() => {
+              const input = window.prompt("请输入 PDF 链接（支持 http/https）", "https://");
+              if (!input) return;
+              const url = input.trim();
+              if (!/^https?:\/\//i.test(url)) {
+                window.alert("仅支持 http 或 https 链接");
+                return;
+              }
+              getUi().openPdfViewer?.(url);
+              window.close();
+            }}
+          >
+            <FileText size={14} />
+            打开 PDF
+          </button>
+          <button
             class={s.btnPrimary}
             onClick={async () => {
               await updateSettings({ enabled: true });

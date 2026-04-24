@@ -50,6 +50,12 @@ export interface UiBridge {
    * from the popup's "Settings" button.
    */
   openOptionsPage?(): void;
+  /**
+   * Open the bundled PDF viewer on the given PDF URL in a new tab. Only
+   * available on WebExtension targets; no-op on the userscript target
+   * (which lacks any way to open a viewer page).
+   */
+  openPdfViewer?(pdfUrl: string): void;
 }
 
 /**

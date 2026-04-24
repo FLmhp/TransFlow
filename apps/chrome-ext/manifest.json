@@ -32,11 +32,11 @@
     }
   ],
   "options_page": "options/index.html",
-  "permissions": ["storage", "activeTab", "scripting", "contextMenus", "alarms"],
+  "permissions": ["storage", "activeTab", "scripting", "contextMenus", "alarms", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "web_accessible_resources": [
     {
-      "resources": ["content/*", "assets/*"],
+      "resources": ["content/*", "assets/*", "pdf-viewer/*"],
       "matches": ["<all_urls>"]
     }
   ],

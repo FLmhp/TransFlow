@@ -19,12 +19,27 @@ const ROOT = resolve(__dirname, "..");
 const DIST = join(ROOT, "dist");
 const PUBLIC_DIR = join(ROOT, "public");
 const SRC = join(ROOT, "src");
+const REPO_ROOT = resolve(ROOT, "..", "..");
+const SHARED_EXT = join(REPO_ROOT, "packages", "shared-ext");
+const PDFJS_DIST = join(SHARED_EXT, "node_modules", "pdfjs-dist");
 
 /** Static files copied verbatim into dist/. */
 const STATIC_COPIES: { from: string; to: string }[] = [
   { from: join(ROOT, "manifest.json"), to: join(DIST, "manifest.json") },
   { from: join(SRC, "popup", "index.html"), to: join(DIST, "popup", "index.html") },
   { from: join(SRC, "options", "index.html"), to: join(DIST, "options", "index.html") },
+  {
+    from: join(SHARED_EXT, "src", "pdf-viewer", "viewer.html"),
+    to: join(DIST, "pdf-viewer", "viewer.html"),
+  },
+  {
+    from: join(SHARED_EXT, "src", "pdf-viewer", "viewer.css"),
+    to: join(DIST, "pdf-viewer", "viewer.css"),
+  },
+  {
+    from: join(PDFJS_DIST, "build", "pdf.worker.mjs"),
+    to: join(DIST, "pdf-viewer", "pdf.worker.mjs"),
+  },
 ];
 
 async function copyStatic(): Promise<void> {
@@ -79,6 +94,10 @@ async function sanityCheck(): Promise<void> {
     join(DIST, "popup", "index.js"),
     join(DIST, "options", "index.html"),
     join(DIST, "options", "index.js"),
+    join(DIST, "pdf-viewer", "viewer.html"),
+    join(DIST, "pdf-viewer", "viewer.css"),
+    join(DIST, "pdf-viewer", "viewer.js"),
+    join(DIST, "pdf-viewer", "pdf.worker.mjs"),
     join(DIST, "assets", "icons", "icon128.png"),
   ];
   const missing: string[] = [];

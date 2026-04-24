@@ -31,6 +31,12 @@ export interface Settings {
   // highlight, and a blur-until-hover "mask" style).
   translationTheme: "normal" | "underline" | "dashed" | "highlight" | "mask";
   pdfEnabled: boolean;
+  /**
+   * When `true`, top-frame navigations to `.pdf` URLs are redirected to
+   * TransFlow's bundled PDF.js viewer, enabling translation of PDFs that
+   * would otherwise be handed to the browser's built-in plugin. Opt-in.
+   */
+  pdfAutoRedirect: boolean;
   subtitleEnabled: boolean;
 
   // Appearance
@@ -61,6 +67,7 @@ export const DEFAULT_SETTINGS: Settings = {
   translationPosition: "below",
   translationTheme: "normal",
   pdfEnabled: true,
+  pdfAutoRedirect: false,
   subtitleEnabled: true,
 
   translationColor: "#1a73e8",

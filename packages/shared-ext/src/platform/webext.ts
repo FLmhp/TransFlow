@@ -5,7 +5,9 @@
  * with the callback-style `chrome.*` API for a single code path).
  */
 import {
+  buildViewerUrl,
   mergeSettings,
+  PDF_VIEWER_PATH,
   type Message,
   type Settings,
   type TranslateResponse,
@@ -24,10 +26,12 @@ interface ChromeLike {
     onMessage: { addListener: AnyFn; removeListener: AnyFn };
     lastError?: { message?: string };
     openOptionsPage?: () => void;
+    getURL?: (path: string) => string;
   };
   tabs?: {
     query: AnyFn;
     sendMessage: AnyFn;
+    create?: AnyFn;
   };
 }
 
@@ -159,6 +163,13 @@ export function createWebExtUiBridge(chrome: ChromeLike): UiBridge {
     },
     openOptionsPage() {
       chrome.runtime.openOptionsPage?.();
+    },
+    openPdfViewer(pdfUrl: string) {
+      const base = chrome.runtime.getURL?.(PDF_VIEWER_PATH);
+      if (!base) return;
+      const prefix = base.replace(/viewer\.html$/, "");
+      const target = buildViewerUrl(prefix, pdfUrl);
+      chrome.tabs?.create?.({ url: target });
     },
   };
 }

@@ -53,4 +53,14 @@ export default defineConfig([
     outDir: "dist/options",
     format: ["esm"],
   },
+
+  // Bundled PDF.js viewer — ESM. The viewer is a full extension page
+  // that renders arbitrary `.pdf` URLs via pdf.js and hands the
+  // rendered text layer to the shared content pipeline for translation.
+  {
+    ...common,
+    entry: { viewer: "src/pdf-viewer/index.ts" },
+    outDir: "dist/pdf-viewer",
+    format: ["esm"],
+  },
 ]);

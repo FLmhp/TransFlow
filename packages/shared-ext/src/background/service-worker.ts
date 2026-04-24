@@ -11,6 +11,9 @@
 import {
   DEFAULT_SETTINGS,
   mergeSettings,
+  resolvePdfRedirect,
+  PDF_VIEWER_PATH,
+  type FetchPdfResponse,
   type Message,
   type Settings,
   type TranslateResponse,
@@ -32,6 +35,7 @@ interface BackgroundChrome {
     onInstalled: { addListener: AnyFn };
     onStartup: { addListener: AnyFn };
     onMessage: { addListener: AnyFn };
+    getURL?: (path: string) => string;
   };
   storage: {
     sync: {
@@ -41,11 +45,15 @@ interface BackgroundChrome {
   };
   tabs: {
     sendMessage: AnyFn;
+    update?: AnyFn;
   };
   contextMenus: {
     removeAll: AnyFn;
     create: AnyFn;
     onClicked: { addListener: AnyFn };
+  };
+  webNavigation?: {
+    onBeforeNavigate: { addListener: AnyFn; removeListener?: AnyFn };
   };
 }
 
@@ -99,6 +107,37 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
 
   chrome.runtime.onStartup.addListener(installContextMenus);
 
+  // ─── Auto-redirect direct .pdf navigations to the bundled viewer ──────
+  //
+  // We use `webNavigation.onBeforeNavigate` (top-frame only) rather than
+  // `declarativeNetRequest` because the set of .pdf URLs isn't static and
+  // we need to honour a runtime setting. The listener is installed
+  // unconditionally; the decision function short-circuits when the
+  // feature is disabled.
+  const viewerUrlPrefix =
+    chrome.runtime.getURL?.(PDF_VIEWER_PATH).replace(/viewer\.html$/, "") ?? "";
+  if (chrome.webNavigation && viewerUrlPrefix) {
+    chrome.webNavigation.onBeforeNavigate.addListener(
+      async (details: { url?: string; tabId?: number; frameId?: number }) => {
+        if (details.frameId !== 0 || !details.tabId || details.tabId < 0) return;
+        if (!details.url) return;
+        const settings = mergeSettings(await chrome.storage.sync.get(null));
+        const target = resolvePdfRedirect({
+          url: details.url,
+          pdfEnabled: settings.pdfEnabled,
+          pdfAutoRedirect: settings.pdfAutoRedirect,
+          viewerUrlPrefix,
+        });
+        if (!target) return;
+        try {
+          await chrome.tabs.update?.(details.tabId, { url: target });
+        } catch {
+          /* tab may have been closed */
+        }
+      },
+    );
+  }
+
   chrome.contextMenus.onClicked.addListener(
     async (
       info: { menuItemId: string; selectionText?: string },
@@ -144,6 +183,10 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
           void chrome.storage.sync.set(message.settings).then(() => sendResponse({ ok: true }));
           return true;
 
+        case "FETCH_PDF":
+          void handleFetchPdf(message.url, sendResponse);
+          return true;
+
         default:
           return false;
       }
@@ -166,6 +209,33 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
       sendResponse(response);
     } catch (err) {
       const response: TranslateResponse = {
+        ok: false,
+        error: err instanceof Error ? err.message : String(err),
+      };
+      sendResponse(response);
+    }
+  }
+
+  /**
+   * Fetch a PDF on behalf of the bundled viewer. Runs in the background
+   * context so `<all_urls>` host permission applies and CORS does not
+   * block cross-origin PDFs. Returns the bytes as a structured-cloneable
+   * `Uint8Array` so the viewer can hand them directly to pdf.js.
+   */
+  async function handleFetchPdf(url: string, sendResponse: SendResponse): Promise<void> {
+    try {
+      if (!url) throw new Error("FETCH_PDF: empty url");
+      const res = await fetch(url, { credentials: "omit", redirect: "follow" });
+      if (!res.ok) throw new Error(`FETCH_PDF: HTTP ${res.status} ${res.statusText}`);
+      const buf = await res.arrayBuffer();
+      const response: FetchPdfResponse = {
+        ok: true,
+        bytes: new Uint8Array(buf),
+        url: res.url || url,
+      };
+      sendResponse(response);
+    } catch (err) {
+      const response: FetchPdfResponse = {
         ok: false,
         error: err instanceof Error ? err.message : String(err),
       };

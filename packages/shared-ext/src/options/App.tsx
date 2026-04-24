@@ -160,6 +160,18 @@ export const App: Component = () => {
                   </label>
                 </div>
                 <div class={`${s.formRow} toggle-row`}>
+                  <span>自动用 TransFlow 查看器打开 .pdf 链接</span>
+                  <label class={s.toggleSwitch}>
+                    <input
+                      type="checkbox"
+                      checked={settings().pdfAutoRedirect}
+                      disabled={!settings().pdfEnabled}
+                      onChange={(e) => void update({ pdfAutoRedirect: e.currentTarget.checked })}
+                    />
+                    <span class={s.slider} />
+                  </label>
+                </div>
+                <div class={`${s.formRow} toggle-row`}>
                   <span>启用视频字幕翻译</span>
                   <label class={s.toggleSwitch}>
                     <input

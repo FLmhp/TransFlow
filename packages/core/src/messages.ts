@@ -13,7 +13,8 @@ export type MessageType =
   | "SETTINGS_UPDATED"
   | "TOGGLE_TRANSLATION"
   | "SHOW_TOOLTIP"
-  | "SHOW_ERROR";
+  | "SHOW_ERROR"
+  | "FETCH_PDF";
 
 export interface TranslateMessage {
   type: "TRANSLATE";
@@ -50,6 +51,17 @@ export interface ShowErrorMessage {
   text: string;
 }
 
+/**
+ * Request the background service worker to fetch a PDF on behalf of the
+ * bundled PDF viewer. The viewer runs on a `chrome-extension://` origin,
+ * so cross-origin PDFs would otherwise fail CORS. The service worker has
+ * `<all_urls>` host permission and can perform the fetch directly.
+ */
+export interface FetchPdfMessage {
+  type: "FETCH_PDF";
+  url: string;
+}
+
 export type Message =
   | TranslateMessage
   | GetSettingsMessage
@@ -57,7 +69,8 @@ export type Message =
   | SettingsUpdatedMessage
   | ToggleTranslationMessage
   | ShowTooltipMessage
-  | ShowErrorMessage;
+  | ShowErrorMessage
+  | FetchPdfMessage;
 
 export interface TranslateResponseOk {
   ok: true;
@@ -70,3 +83,18 @@ export interface TranslateResponseErr {
 }
 
 export type TranslateResponse = TranslateResponseOk | TranslateResponseErr;
+
+export interface FetchPdfResponseOk {
+  ok: true;
+  /** Raw PDF bytes. Uint8Array is structured-cloneable across messaging. */
+  bytes: Uint8Array;
+  /** Resolved final URL after any redirects. */
+  url: string;
+}
+
+export interface FetchPdfResponseErr {
+  ok: false;
+  error: string;
+}
+
+export type FetchPdfResponse = FetchPdfResponseOk | FetchPdfResponseErr;

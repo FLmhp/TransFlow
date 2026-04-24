@@ -20,5 +20,6 @@ export {
 } from "./content/index.js";
 export { startPopup } from "./popup/index.jsx";
 export { startOptions } from "./options/index.jsx";
+export { startPdfViewer } from "./pdf-viewer/viewer.js";
 export { injectGlobalStyles } from "./content/styles.js";
 export { showTooltip, hideTooltip, bindTooltipDismissal } from "./content/tooltip.js";

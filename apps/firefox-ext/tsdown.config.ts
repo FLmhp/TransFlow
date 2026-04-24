@@ -53,4 +53,12 @@ export default defineConfig([
     outDir: "dist/options",
     format: ["esm"],
   },
+
+  // Bundled PDF.js viewer — ESM.
+  {
+    ...common,
+    entry: { viewer: "src/pdf-viewer/index.ts" },
+    outDir: "dist/pdf-viewer",
+    format: ["esm"],
+  },
 ]);
