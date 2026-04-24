@@ -90,7 +90,8 @@ describe("startServiceWorker — FETCH_PDF", () => {
     });
     expect(response).toEqual({
       ok: true,
-      bytes: new Uint8Array([0x25, 0x50, 0x44, 0x46]),
+      // "%PDF" base64-encoded.
+      bytesBase64: "JVBERg==",
       url: "https://example.com/final.pdf",
     });
   });

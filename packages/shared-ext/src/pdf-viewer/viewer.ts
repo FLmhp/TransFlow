@@ -74,7 +74,21 @@ async function loadPdfBytes(chrome: ViewerChromeLike, url: string): Promise<Uint
   if (!response.ok) {
     throw new Error(response.error);
   }
-  return response.bytes;
+  return base64ToBytes(response.bytesBase64);
+}
+
+/**
+ * Decode a base64 string produced by the background service worker
+ * into a `Uint8Array`. See `FetchPdfResponseOk.bytesBase64` for why
+ * the wire format is base64 rather than a raw `Uint8Array`.
+ */
+function base64ToBytes(base64: string): Uint8Array {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
 }
 
 function setStatus(text: string): void {

@@ -86,8 +86,19 @@ export type TranslateResponse = TranslateResponseOk | TranslateResponseErr;
 
 export interface FetchPdfResponseOk {
   ok: true;
-  /** Raw PDF bytes. Uint8Array is structured-cloneable across messaging. */
-  bytes: Uint8Array;
+  /**
+   * Raw PDF bytes, base64-encoded.
+   *
+   * Chrome's `chrome.runtime.sendMessage` serializes payloads as JSON
+   * (not the structured clone algorithm), so a `Uint8Array` would
+   * round-trip as a plain object like `{"0":37,"1":80,…}` and
+   * `new Uint8Array(obj)` on the receiving side would silently produce
+   * a zero-length array — pdf.js then reports
+   * "The PDF file is empty, i.e. its size is zero bytes.".
+   *
+   * A base64 string is JSON-safe and adds only ~33% overhead.
+   */
+  bytesBase64: string;
   /** Resolved final URL after any redirects. */
   url: string;
 }

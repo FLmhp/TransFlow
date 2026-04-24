@@ -241,7 +241,7 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
       const buf = await res.arrayBuffer();
       const response: FetchPdfResponse = {
         ok: true,
-        bytes: new Uint8Array(buf),
+        bytesBase64: bytesToBase64(new Uint8Array(buf)),
         url: res.url || url,
       };
       sendResponse(response);
@@ -255,4 +255,19 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
   }
 
   void DEFAULT_SETTINGS;
+}
+
+/**
+ * Convert a byte array to a base64 string. `btoa` only accepts binary
+ * strings, and `String.fromCharCode(...huge)` can overflow the call
+ * stack, so we chunk the input.
+ */
+function bytesToBase64(bytes: Uint8Array): string {
+  const CHUNK = 0x8000;
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += CHUNK) {
+    const chunk = bytes.subarray(i, i + CHUNK);
+    binary += String.fromCharCode(...chunk);
+  }
+  return btoa(binary);
 }
