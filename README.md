@@ -41,7 +41,7 @@ TransFlow is a lightweight, **genuinely open-source** alternative to proprietary
 ## ✨ Features
 
 - 🌐 **Bilingual webpage translation** — paragraphs translated inline in real time; SPAs fully supported via `MutationObserver`.
-- 📄 **PDF translation** — works with PDF.js text layers; each line is translated directly inside the viewer.
+- 📄 **PDF translation** — any `.pdf` URL is opened in a bundled PDF.js viewer and translated inline; enable "Auto-redirect .pdf links" in Options to make the redirect automatic. The Tampermonkey build can only translate PDFs rendered by a PDF.js viewer in the page (e.g. Firefox's built-in viewer), since userscripts cannot host an extension page — use a WebExtension build for direct-URL PDF translation.
 - 🎬 **Video subtitle translation** — YouTube, Netflix, Disney+, Prime Video, Bilibili, and generic HTML5 players.
 - 🖱 **Selection tooltip** — select any text on a page and get an instant translation popup.
 - 🔍 **Google Translate** — free, no API key needed (public web endpoint).
