@@ -10,7 +10,7 @@ test.describe("Options", () => {
     try {
       const page = await openOptions(context, extensionId);
 
-      await expect(page.getByText("TransFlow")).toBeVisible();
+      await expect(page.getByText("TransFlow", { exact: true })).toBeVisible();
 
       await expect(page.locator("body")).toHaveScreenshot("options.png");
     } finally {
