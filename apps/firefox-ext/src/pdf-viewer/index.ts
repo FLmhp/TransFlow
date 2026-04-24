@@ -1,5 +1,5 @@
 /**
- * Chromium (MV3) bundled PDF viewer entry point — installs the
+ * Firefox (MV3) bundled PDF viewer entry point — installs the
  * WebExtension runtime bridge and starts the shared viewer bootstrap
  * from `@transflow/shared-ext`.
  */

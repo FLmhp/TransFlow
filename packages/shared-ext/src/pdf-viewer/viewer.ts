@@ -118,10 +118,8 @@ async function renderPage(
   await page.render({
     canvasContext: ctx,
     viewport,
-    // `canvas` is required in newer pdf.js versions; older ones ignore it.
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     canvas,
-  } as any).promise;
+  }).promise;
 
   // Build the text layer. pdf.js's `TextLayer` helper creates span
   // elements with absolute positioning — exactly what our content-script
@@ -159,9 +157,25 @@ export async function startPdfViewer(options: PdfViewerOptions): Promise<void> {
     return;
   }
 
+  // Only http(s) URLs are accepted. Without this guard, a crafted
+  // `?file=javascript:...` parameter would end up on an `<a href>` and,
+  // worse, could be handed to the background fetch proxy or `getDocument`.
+  let safeUrl: URL;
+  try {
+    safeUrl = new URL(fileParam);
+  } catch {
+    setStatus("Invalid PDF URL");
+    return;
+  }
+  if (safeUrl.protocol !== "http:" && safeUrl.protocol !== "https:") {
+    setStatus(`Unsupported scheme: ${safeUrl.protocol}`);
+    return;
+  }
+  const validatedUrl = safeUrl.toString();
+
   const downloadLink = document.querySelector<HTMLAnchorElement>("#tf-pdf-download");
-  if (downloadLink) downloadLink.href = fileParam;
-  document.title = `${decodeFileParamForTitle(fileParam)} — TransFlow`;
+  if (downloadLink) downloadLink.href = validatedUrl;
+  document.title = `${decodeFileParamForTitle(validatedUrl)} — TransFlow`;
 
   const container = document.querySelector<HTMLElement>("#viewer");
   if (!container) {
@@ -172,7 +186,7 @@ export async function startPdfViewer(options: PdfViewerOptions): Promise<void> {
   setStatus("Fetching PDF…");
   let bytes: Uint8Array;
   try {
-    bytes = await loadPdfBytes(chrome, fileParam);
+    bytes = await loadPdfBytes(chrome, validatedUrl);
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     setStatus(`Failed to fetch PDF: ${message}`);

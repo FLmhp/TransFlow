@@ -225,7 +225,18 @@ export function startServiceWorker(options: ServiceWorkerOptions): void {
   async function handleFetchPdf(url: string, sendResponse: SendResponse): Promise<void> {
     try {
       if (!url) throw new Error("FETCH_PDF: empty url");
-      const res = await fetch(url, { credentials: "omit", redirect: "follow" });
+      // Defense-in-depth: only allow http(s). The viewer already
+      // validates, but the background must not trust its callers.
+      let parsed: URL;
+      try {
+        parsed = new URL(url);
+      } catch {
+        throw new Error("FETCH_PDF: invalid url");
+      }
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        throw new Error(`FETCH_PDF: unsupported scheme ${parsed.protocol}`);
+      }
+      const res = await fetch(parsed.toString(), { credentials: "omit", redirect: "follow" });
       if (!res.ok) throw new Error(`FETCH_PDF: HTTP ${res.status} ${res.statusText}`);
       const buf = await res.arrayBuffer();
       const response: FetchPdfResponse = {

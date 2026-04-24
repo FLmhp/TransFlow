@@ -125,6 +125,21 @@ describe("startServiceWorker — FETCH_PDF", () => {
     expect(response.error).toBe("Failed to fetch");
   });
 
+  it("rejects non-http(s) URLs (defense in depth)", async () => {
+    const fetchMock = vi.fn();
+    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    const ctx = makeBackgroundChrome();
+    // eslint-disable-next-line typescript/no-unsafe-type-assertion
+    startServiceWorker({ chrome: ctx.chrome as never });
+    const response = (await ctx.dispatchMessage({
+      type: "FETCH_PDF",
+      url: "javascript:alert(1)",
+    })) as { ok: boolean; error?: string };
+    expect(response.ok).toBe(false);
+    expect(response.error).toMatch(/unsupported scheme/);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("rejects an empty URL", async () => {
     const ctx = makeBackgroundChrome();
     // eslint-disable-next-line typescript/no-unsafe-type-assertion
