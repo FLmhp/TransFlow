@@ -226,7 +226,7 @@ export async function startPdfViewer(options: PdfViewerOptions): Promise<void> {
 function decodeFileParamForTitle(fileParam: string): string {
   try {
     const parsed = new URL(fileParam);
-    const last = parsed.pathname.split("/").filter(Boolean).pop();
+    const last = parsed.pathname.split("/").findLast((s) => s.length > 0);
     return decodeURIComponent(last ?? fileParam);
   } catch {
     return fileParam;

@@ -1,6 +1,18 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { DEFAULT_SETTINGS } from "@transflow/core";
 import { startServiceWorker } from "../src/background/service-worker.js";
+
+function makeFetchResponse(
+  body: BodyInit | null,
+  init: ResponseInit & { url?: string } = {},
+): Response {
+  const { url, ...rest } = init;
+  const response = new Response(body, rest);
+  if (url !== undefined) {
+    Object.defineProperty(response, "url", { value: url });
+  }
+  return response;
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyFn = (...args: any[]) => any;
@@ -60,23 +72,15 @@ afterEach(() => {
 });
 
 describe("startServiceWorker — FETCH_PDF", () => {
-  let originalFetch: typeof fetch;
-  beforeEach(() => {
-    originalFetch = globalThis.fetch;
-  });
-  afterEach(() => {
-    globalThis.fetch = originalFetch;
-  });
-
   it("returns bytes and final URL on a successful fetch", async () => {
     const bytes = new Uint8Array([0x25, 0x50, 0x44, 0x46]); // %PDF
-    globalThis.fetch = vi.fn(async () => ({
-      ok: true,
-      status: 200,
-      statusText: "OK",
-      url: "https://example.com/final.pdf",
-      arrayBuffer: async () => bytes.buffer,
-    })) as unknown as typeof fetch;
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      makeFetchResponse(bytes, {
+        status: 200,
+        statusText: "OK",
+        url: "https://example.com/final.pdf",
+      }),
+    );
     const ctx = makeBackgroundChrome();
     // eslint-disable-next-line typescript/no-unsafe-type-assertion
     startServiceWorker({ chrome: ctx.chrome as never });
@@ -92,64 +96,60 @@ describe("startServiceWorker — FETCH_PDF", () => {
   });
 
   it("returns an error response on HTTP failure", async () => {
-    globalThis.fetch = vi.fn(async () => ({
-      ok: false,
-      status: 404,
-      statusText: "Not Found",
-      url: "https://example.com/missing.pdf",
-      arrayBuffer: async () => new ArrayBuffer(0),
-    })) as unknown as typeof fetch;
+    vi.spyOn(globalThis, "fetch").mockResolvedValue(
+      makeFetchResponse(null, {
+        status: 404,
+        statusText: "Not Found",
+        url: "https://example.com/missing.pdf",
+      }),
+    );
     const ctx = makeBackgroundChrome();
     // eslint-disable-next-line typescript/no-unsafe-type-assertion
     startServiceWorker({ chrome: ctx.chrome as never });
-    const response = (await ctx.dispatchMessage({
+    const response = await ctx.dispatchMessage({
       type: "FETCH_PDF",
       url: "https://example.com/missing.pdf",
-    })) as { ok: boolean; error?: string };
-    expect(response.ok).toBe(false);
-    expect(response.error).toMatch(/404/);
+    });
+    expect(response).toMatchObject({ ok: false, error: expect.stringMatching(/404/) });
   });
 
   it("returns an error response when fetch throws (e.g. network down)", async () => {
-    globalThis.fetch = vi.fn(async () => {
-      throw new TypeError("Failed to fetch");
-    }) as unknown as typeof fetch;
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("Failed to fetch"));
     const ctx = makeBackgroundChrome();
     // eslint-disable-next-line typescript/no-unsafe-type-assertion
     startServiceWorker({ chrome: ctx.chrome as never });
-    const response = (await ctx.dispatchMessage({
+    const response = await ctx.dispatchMessage({
       type: "FETCH_PDF",
       url: "https://example.com/a.pdf",
-    })) as { ok: boolean; error?: string };
-    expect(response.ok).toBe(false);
-    expect(response.error).toBe("Failed to fetch");
+    });
+    expect(response).toMatchObject({ ok: false, error: "Failed to fetch" });
   });
 
   it("rejects non-http(s) URLs (defense in depth)", async () => {
-    const fetchMock = vi.fn();
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
     const ctx = makeBackgroundChrome();
     // eslint-disable-next-line typescript/no-unsafe-type-assertion
     startServiceWorker({ chrome: ctx.chrome as never });
-    const response = (await ctx.dispatchMessage({
+    const response = await ctx.dispatchMessage({
       type: "FETCH_PDF",
       url: "javascript:alert(1)",
-    })) as { ok: boolean; error?: string };
-    expect(response.ok).toBe(false);
-    expect(response.error).toMatch(/unsupported scheme/);
-    expect(fetchMock).not.toHaveBeenCalled();
+    });
+    expect(response).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/unsupported scheme/),
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   it("rejects an empty URL", async () => {
     const ctx = makeBackgroundChrome();
     // eslint-disable-next-line typescript/no-unsafe-type-assertion
     startServiceWorker({ chrome: ctx.chrome as never });
-    const response = (await ctx.dispatchMessage({ type: "FETCH_PDF", url: "" })) as {
-      ok: boolean;
-      error?: string;
-    };
-    expect(response.ok).toBe(false);
-    expect(response.error).toMatch(/empty url/);
+    const response = await ctx.dispatchMessage({ type: "FETCH_PDF", url: "" });
+    expect(response).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/empty url/),
+    });
   });
 });
 
